@@ -201,8 +201,61 @@ body{background:#0d0f14;font-family:var(--font-b);font-size:13px;display:flex;fl
 </style>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+<style>
+/* ── LOGIN SCREEN ─────────────────────────────────────────────────────── */
+#login-screen{position:fixed;inset:0;background:#0d0f14;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9998;gap:0}
+#login-screen.hidden{display:none}
+.login-card{background:#13161e;border:1px solid #2e3448;border-top:3px solid #f5c842;padding:32px 36px;width:320px;display:flex;flex-direction:column;gap:16px}
+.login-logo{display:flex;align-items:center;gap:12px;margin-bottom:4px}
+.login-mark{width:36px;height:36px;background:#f5c842;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:17px;color:#000;flex-shrink:0}
+.login-brand{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:18px;color:#e8eaf0;letter-spacing:.04em}
+.login-sub{font-size:11px;color:#555c70;text-transform:uppercase;letter-spacing:.1em;margin-top:-2px}
+.login-lbl{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#6b6560;margin-bottom:3px}
+.login-inp{background:#0d0f14;border:1px solid #2e3448;padding:10px 12px;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:600;color:#e8eaf0;outline:none;width:100%;transition:border-color .12s;box-sizing:border-box}
+.login-inp:focus{border-color:#f5c842}
+.login-inp option{background:#13161e;color:#e8eaf0}
+.login-btn{background:#f5c842;border:none;padding:12px;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:#000;cursor:pointer;transition:opacity .12s;width:100%}
+.login-btn:hover{opacity:.88}
+.login-err{font-size:12px;color:#e05252;text-align:center;min-height:16px}
+.login-env{font-family:'JetBrains Mono',monospace;font-size:9px;color:#3a4055;text-align:center;letter-spacing:.08em;text-transform:uppercase;margin-top:4px}
+/* ── VIEWER MODE ──────────────────────────────────────────────────────── */
+body.viewer .cell-add{display:none!important}
+body.viewer .jremove{display:none!important}
+body.viewer .jcard{cursor:default;touch-action:auto}
+body.viewer .job-chip{cursor:default;touch-action:auto}
+body.viewer .cl,.viewer .rc,.viewer .sat-bar{cursor:default;pointer-events:none}
+body.viewer #settings-btn{opacity:.4;pointer-events:none}
+</style>
+
 </head>
 <body>
+<!-- LOGIN SCREEN -->
+<div id="login-screen" class="hidden">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-mark">SF</div>
+      <div>
+        <div class="login-brand">SFS Crew Scheduler</div>
+        <div class="login-sub">Semper Fi Striping LLC</div>
+      </div>
+    </div>
+    <div>
+      <div class="login-lbl">Access Mode</div>
+      <select class="login-inp" id="login-mode">
+        <option value="editor">Editor — Can make changes</option>
+        <option value="viewer">Viewer — Read only</option>
+      </select>
+    </div>
+    <div>
+      <div class="login-lbl">Password</div>
+      <input class="login-inp" id="login-pass" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="loginKey(event)">
+    </div>
+    <div class="login-err" id="login-err"></div>
+    <button class="login-btn" id="login-btn" onclick="doLogin()">Enter</button>
+    <div class="login-env" id="login-env"></div>
+  </div>
+</div>
+
 <div id="loading-screen" style="position:fixed;inset:0;background:#0d0f14;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;gap:16px">
   <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:28px;letter-spacing:.14em;color:#f5c842">SEMPER FI STRIPING</div>
   <div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;letter-spacing:.12em;color:#555c70;text-transform:uppercase">Connecting to scheduler…</div>
@@ -235,6 +288,7 @@ body{background:#0d0f14;font-family:var(--font-b);font-size:13px;display:flex;fl
     </div>
   </div>
   <div class="sync"><div class="sync-dot"></div><span id="sync-lbl">Saved</span></div>
+  <div id="mode-badge" style="font-family:var(--font-mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:#3a4055;margin-left:6px;cursor:pointer" onclick="doLogout()" title="Click to sign out"></div>
 </header>
 
 <div class="main" id="main"></div>
@@ -382,6 +436,16 @@ function initData(){
   return{numCrews:5,crews:[{num:1,members:['Robert','Olivia','Ronnie']},{num:2,members:['Bash','Jonathan','Charles']},{num:3,members:['Eric','Dano','Brandon']},{num:4,members:['Roman','Mark','Mike']},{num:5,members:['Jesse','Ed']}],weeks:[w0,w1],viewIdx:0,notes:''};
 }
 
+// ── ENVIRONMENT ──────────────────────────────────────────────────────────
+// Prod: scheduler.semperfistriping.com  → /sched      (production data)
+// Dev:  scheduler-dev.semperfistriping.com OR dylan398.github.io → /sched-dev
+// Both use the same Firebase project (Spark plan = 1 free DB).
+// Different paths keep data completely isolated.
+const HOST    = window.location.hostname;
+const IS_PROD = HOST === 'scheduler.semperfistriping.com';
+const ENV     = IS_PROD ? 'PROD' : 'DEV';
+const DB_PATH = IS_PROD ? 'sched' : 'sched-dev';  // data root path
+
 // ── FIREBASE ─────────────────────────────────────────────────────────────
 const firebaseConfig = {
   apiKey: "AIzaSyCMMBFQEHTHnI4fxU_0C11kCkTaLDBJEJs",
@@ -501,14 +565,14 @@ function save() {
     }
   });
   payload._sid = MY_SESSION;
-  DB.ref('sched').set(payload)
+  DB.ref(DB_PATH).set(payload)
     .then(() => setSync('Saved'))
     .catch(e => { console.error('Firebase save error:', e); setSync('⚠ Save failed'); });
   setSync('Saving…');
 }
 
 function initFirebase() {
-  DB.ref('sched').on('value', snap => {
+  DB.ref(DB_PATH).on('value', snap => {
     const d = snap.val();
     if(!d) {
       // No data yet — initialize and write
@@ -534,6 +598,51 @@ function initFirebase() {
   });
 }
 function setSync(t){document.getElementById('sync-lbl').textContent=t;}
+
+// ── SIMPLE PASSWORD GATE ─────────────────────────────────────────────────
+const APP_PASS = 'Semperfi3004!';
+let VIEWER_MODE = false;
+
+function showLogin() {
+  document.getElementById('login-screen').classList.remove('hidden');
+  document.getElementById('loading-screen').style.display = 'none';
+  document.getElementById('login-env').textContent = ENV + ' · /' + DB_PATH;
+  setTimeout(() => document.getElementById('login-pass').focus(), 100);
+}
+function loginKey(e) { if(e.key === 'Enter') doLogin(); }
+function doLogin() {
+  const pass = document.getElementById('login-pass').value;
+  const mode = document.getElementById('login-mode').value;
+  if(pass !== APP_PASS) {
+    document.getElementById('login-err').textContent = 'Incorrect password.';
+    document.getElementById('login-pass').value = '';
+    document.getElementById('login-pass').focus();
+    return;
+  }
+  VIEWER_MODE = (mode === 'viewer');
+  document.body.classList.toggle('viewer', VIEWER_MODE);
+  document.getElementById('mode-badge').textContent = VIEWER_MODE ? '👁 Viewer · ' + ENV : '✎ Editor · ' + ENV;
+  document.getElementById('login-screen').classList.add('hidden');
+  document.getElementById('loading-screen').style.display = 'flex';
+  initFirebase();
+}
+function doLogout() {
+  // Clear session and reload to show login screen
+  S = null;
+  DB.ref(DB_PATH).off('value');
+  document.getElementById('login-screen').classList.remove('hidden');
+  document.getElementById('loading-screen').style.display = 'none';
+  document.getElementById('mode-badge').textContent = '';
+  document.getElementById('login-pass').value = '';
+  document.getElementById('login-err').textContent = '';
+  document.body.classList.remove('viewer');
+}
+
+// ── BOOT ─────────────────────────────────────────────────────────────────
+// Show login on first load. doLogin() will call initFirebase() on success.
+showLogin();
+
+
 
 // ── ACTIVE STATES ─────────────────────────────────────────────────────────
 let AE={wi:null,di:null,ci:null,ji:null};
@@ -598,6 +707,7 @@ function performDrop(src,tgt){
 }
 
 function attachCardDrag(cardEl,wi,di,ci,ji){
+  if(VIEWER_MODE) return;
   cardEl.addEventListener('pointerdown',e=>{
     if(e.target.classList.contains('jremove'))return;
     if(e.button>0)return;
@@ -637,6 +747,7 @@ function attachCardDrag(cardEl,wi,di,ci,ji){
 }
 
 function attachChipDrag(chipEl,wi,jobName){
+  if(VIEWER_MODE) return;
   chipEl.addEventListener('pointerdown',e=>{
     if(e.button>0)return;
     e.preventDefault();
@@ -699,7 +810,7 @@ function render(){
   nf.className='notes-footer';
   nf.innerHTML=`<div class="notes-inner"><div class="notes-lbl">Board Notes</div><textarea class="notes-ta" id="notes-ta" placeholder="Notes...">${esc(S.notes)}</textarea></div><div class="notes-corner"></div>`;
   main.appendChild(nf);
-  document.getElementById('notes-ta').addEventListener('input',function(){S.notes=this.value;save();});
+  document.getElementById('notes-ta').addEventListener('input',function(){if(!VIEWER_MODE){S.notes=this.value;save();}else{this.value=S.notes;}});
   updateNav();
 }
 
@@ -734,7 +845,7 @@ function buildWeek(wi,label,isNext){
     const crew=S.crews[ci]||{num:ci+1,members:[]};
     const cl=mkEl('div','cl');
     cl.innerHTML=`<div class="cl-num">${crew.num}</div><div class="cl-sub">Crew</div>`;
-    cl.addEventListener('click',e=>openRoster(ci,e));
+    cl.addEventListener('click',e=>{ if(!VIEWER_MODE) openRoster(ci,e); });
     grid.appendChild(cl);
     for(let di=0;di<nd;di++){
       const isSat=di===5,isSun=di===6,isToday=!isNext&&wk.dates[di]===todayStr;
@@ -752,7 +863,7 @@ function buildWeek(wi,label,isNext){
       });
       const addBtn=mkEl('div','cell-add');
       addBtn.textContent='+';
-      addBtn.addEventListener('click',e=>openEditJob(wi,di,ci,-1,e));
+      addBtn.addEventListener('click',e=>{ if(!VIEWER_MODE) openEditJob(wi,di,ci,-1,e); });
       cell.appendChild(addBtn);
       grid.appendChild(cell);
     }
@@ -776,7 +887,7 @@ function buildWeek(wi,label,isNext){
     const sb=mkEl('div','sat-bar');
     const nm=wk.satRoster?.length?wk.satRoster.join(', '):'Tap to set Saturday sign-up…';
     sb.innerHTML=`<span class="sat-bar-lbl">SAT CREW:</span><span class="sat-bar-names">${esc(nm)}</span>`;
-    sb.addEventListener('click',e=>openSatRoster(wi,e));
+    sb.addEventListener('click',e=>{ if(!VIEWER_MODE) openSatRoster(wi,e); });
     sec.appendChild(sb);
   }
   return sec;
@@ -929,7 +1040,8 @@ function fmt(n){return(n||0).toLocaleString('en-US');}
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function addDays(ds,n){const p=ds.split(' ');const yr=new Date().getFullYear();const d=new Date(yr,MI[p[0]],parseInt(p[1])+n);return MN[d.getMonth()]+' '+d.getDate();}
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeEdit();closeSummary();closeRoster();}});
-initFirebase();
+// Boot is handled by showLogin() above — doLogin() calls initFirebase() on success.
+
 </script>
 </body>
 </html>
