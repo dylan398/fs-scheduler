@@ -428,7 +428,7 @@ function migrate(d) {
 
   d.weeks.forEach(wk => {
     if(!wk) return;
-    if(!wk.jobSummary) wk.jobSummary = {};
+    wk.jobSummary = decodeJobSummary(wk.jobSummary);
     wk.satRoster = fbArr(wk.satRoster, []).filter(Boolean);
     if(wk.hasSunday === undefined) wk.hasSunday = false;
     const nd = wk.hasSunday ? 7 : 6;
@@ -449,9 +449,7 @@ function migrate(d) {
       });
     });
 
-    Object.values(wk.jobSummary).forEach(j => {
-      if(j && j.totalDays === undefined) j.totalDays = 0;
-    });
+    // (totalDays default handled in decodeJobSummary)
   });
 
   if(d.viewIdx === undefined) d.viewIdx = 0;
@@ -460,12 +458,48 @@ function migrate(d) {
   return d;
 }
 
+// ── Firebase key safety ──────────────────────────────────────────────────
+// Firebase rejects keys with . # $ / [ ] — job names can contain these.
+// Solution: store jobSummary as an array [{__n: jobName, ...props}] in Firebase,
+// and convert back to {jobName: props} in memory.
+function encodeJobSummary(obj) {
+  return Object.entries(obj || {}).map(([name, v]) => ({
+    __n: name,
+    finishing: !!v.finishing,
+    invoiceAmt: v.invoiceAmt || 0,
+    totalDays: v.totalDays || 0
+  }));
+}
+function decodeJobSummary(raw) {
+  if (!raw) return {};
+  const list = fbArr(raw, []).filter(Boolean);
+  const obj = {};
+  list.forEach(item => {
+    if (item && item.__n) {
+      obj[item.__n] = {
+        finishing: !!item.finishing,
+        invoiceAmt: item.invoiceAmt || 0,
+        totalDays: item.totalDays || 0
+      };
+    }
+  });
+  return obj;
+}
+
 function save() {
   _lastSaveTime = Date.now();
   // Tag data with our session so the echo can be identified and ignored
   const payload = JSON.parse(JSON.stringify(S));
+  // Encode jobSummary keys to Firebase-safe array format
+  (payload.weeks || []).forEach(wk => {
+    if (wk && wk.jobSummary) {
+      wk.jobSummary = encodeJobSummary(wk.jobSummary);
+    }
+  });
   payload._sid = MY_SESSION;
-  DB.ref('sched').set(payload).catch(() => setSync('⚠ Offline'));
+  DB.ref('sched').set(payload)
+    .then(() => setSync('Saved'))
+    .catch(e => { console.error('Firebase save error:', e); setSync('⚠ Save failed'); });
   setSync('Saving…');
 }
 
@@ -475,7 +509,8 @@ function initFirebase() {
     if(!d) {
       // No data yet — initialize and write
       S = initData();
-      DB.ref('sched').set(S);
+      // Use save() so jobSummary encoding is applied correctly
+      save();
       document.getElementById('loading-screen').style.display = 'none';
       render();
       setSync('● Live');
