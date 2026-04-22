@@ -338,7 +338,7 @@ const CREW_W=58,ROSTER_W=140;
 // ── DATA ─────────────────────────────────────────────────────────────────
 function emptyA(nc,nd){return Array.from({length:nc},()=>Array.from({length:nd},()=>[]));} 
 function mkWeek(dates){return{dates,hasSunday:false,satRoster:[],jobSummary:{},a:emptyA(5,dates.length)};}
-function wkDates(mon){const p=mon.split(' ');const b=new Date(2026,MI[p[0]],parseInt(p[1]));return Array.from({length:6},(_,i)=>{const d=new Date(b);d.setDate(b.getDate()+i);return MN[d.getMonth()]+' '+d.getDate();});}
+function wkDates(mon){const p=mon.split(' ');const yr=new Date().getFullYear();const b=new Date(yr,MI[p[0]],parseInt(p[1]));return Array.from({length:6},(_,i)=>{const d=new Date(b);d.setDate(b.getDate()+i);return MN[d.getMonth()]+' '+d.getDate();});}
 
 function initData(){
   const jb=(job,note,s,val,night)=>({job,note,s,val:val||0,night:!!night});
@@ -437,17 +437,21 @@ function migrate(d) {
     wk.a = fbArr(wk.a, []);
     while(wk.a.length < d.numCrews) wk.a.push(null);
     wk.a = wk.a.slice(0, d.numCrews);
-    wk.a.forEach((cr, ci) => {
-      cr = fbArr(cr, []);
+    for(let ci = 0; ci < wk.a.length; ci++) {
+      let cr = fbArr(wk.a[ci], []);
       while(cr.length < nd) cr.push(null);
       cr = cr.slice(0, nd);
       wk.a[ci] = cr;
-      cr.forEach((cell, di) => {
-        if(!cell) { wk.a[ci][di] = []; return; }
-        cell = fbArr(cell, []);
-        wk.a[ci][di] = cell.filter(j => j && j.job);
-      });
-    });
+      // Use for loop (not forEach) so sparse array holes are visited, not skipped
+      for(let di = 0; di < nd; di++) {
+        const cell = cr[di];
+        if(!cell || !Array.isArray(cell)) {
+          wk.a[ci][di] = cell ? fbArr(cell, []).filter(j => j && j.job) : [];
+        } else {
+          wk.a[ci][di] = cell.filter(j => j && j.job);
+        }
+      }
+    }
 
     // (totalDays default handled in decodeJobSummary)
   });
@@ -718,8 +722,9 @@ function buildWeek(wi,label,isNext){
   const grid=mkEl('div','grid');
   grid.style.gridTemplateColumns=`${CREW_W}px repeat(${nd},1fr) ${ROSTER_W}px`;
   grid.appendChild(mkEl('div','ch corner'));
+  const todayStr=MN[new Date().getMonth()]+' '+new Date().getDate();
   for(let di=0;di<nd;di++){
-    const isSat=di===5,isSun=di===6,isToday=!isNext&&di===2;
+    const isSat=di===5,isSun=di===6,isToday=!isNext&&wk.dates[di]===todayStr;
     const dh=mkEl('div',`ch day-h${isToday?' today-h':''}${isSat?' sat-h':''}${isSun?' sun-h':''}`);
     dh.innerHTML=`<div class="dn">${DAY_NAMES[di]}</div><div class="dd">${wk.dates[di]||''}</div>`;
     grid.appendChild(dh);
@@ -732,7 +737,7 @@ function buildWeek(wi,label,isNext){
     cl.addEventListener('click',e=>openRoster(ci,e));
     grid.appendChild(cl);
     for(let di=0;di<nd;di++){
-      const isSat=di===5,isSun=di===6,isToday=!isNext&&di===2;
+      const isSat=di===5,isSun=di===6,isToday=!isNext&&wk.dates[di]===todayStr;
       const cell=mkEl('div',`cell${isToday?' today-col':''}${isSat?' sat-col':''}${isSun?' sun-col':''}`);
       cell.dataset.wi=wi;cell.dataset.di=di;cell.dataset.ci=ci;
       const jobs=(wk.a[ci]&&wk.a[ci][di])||[];
@@ -911,7 +916,7 @@ function navigate(dir){const ni=S.viewIdx+dir;if(ni<0)return;S.viewIdx=ni;while(
 function updateNav(){document.getElementById('nav-prev').disabled=S.viewIdx===0;const w0=S.weeks[S.viewIdx],w1=S.weeks[S.viewIdx+1]||w0;const nd1=w1.hasSunday?7:6;document.getElementById('nav-range').textContent=`${w0.dates[0]} – ${w1.dates[nd1-1]||w1.dates[5]}`;document.getElementById('crew-count-lbl').textContent=S.numCrews;document.getElementById('sp-crew-val').textContent=S.numCrews;}
 
 // ── ENSURE DIMS ───────────────────────────────────────────────────────────
-function ensureA(wi){const wk=S.weeks[wi],nd=wk.hasSunday?7:6;while(wk.a.length<S.numCrews)wk.a.push(Array.from({length:nd},()=>[]));wk.a=wk.a.slice(0,S.numCrews);wk.a.forEach((cr,ci)=>{while(cr.length<nd)cr.push([]);wk.a[ci]=cr.slice(0,nd);wk.a[ci].forEach((c,di)=>{if(!Array.isArray(c))wk.a[ci][di]=c?[c]:[];});});}
+function ensureA(wi){const wk=S.weeks[wi],nd=wk.hasSunday?7:6;while(wk.a.length<S.numCrews)wk.a.push(Array.from({length:nd},()=>[]));wk.a=wk.a.slice(0,S.numCrews);for(let ci=0;ci<wk.a.length;ci++){let cr=wk.a[ci]||[];while(cr.length<nd)cr.push([]);wk.a[ci]=cr.slice(0,nd);for(let di=0;di<nd;di++){if(!Array.isArray(wk.a[ci][di]))wk.a[ci][di]=wk.a[ci][di]?[wk.a[ci][di]]:[];}}}
 
 // ── SETTINGS POP ──────────────────────────────────────────────────────────
 function toggleSettings(){document.getElementById('settings-pop').classList.toggle('open');document.getElementById('settings-btn').classList.toggle('active-pop');}
@@ -922,7 +927,7 @@ function ovBgClick(e,id,fn){if(e.target===document.getElementById(id))fn();}
 function mkEl(tag,cls,text){const e=document.createElement(tag);if(cls)e.className=cls;if(text)e.textContent=text;return e;}
 function fmt(n){return(n||0).toLocaleString('en-US');}
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function addDays(ds,n){const p=ds.split(' ');const d=new Date(2026,MI[p[0]],parseInt(p[1])+n);return MN[d.getMonth()]+' '+d.getDate();}
+function addDays(ds,n){const p=ds.split(' ');const yr=new Date().getFullYear();const d=new Date(yr,MI[p[0]],parseInt(p[1])+n);return MN[d.getMonth()]+' '+d.getDate();}
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeEdit();closeSummary();closeRoster();}});
 initFirebase();
 </script>
