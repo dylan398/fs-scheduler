@@ -346,25 +346,6 @@ body.dark .per-day-display{background:#162035;border-color:#2e3448}
 .cswatch.none-swatch{background:#3a4055;position:relative}
 .cswatch.none-swatch::after{content:'×';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#8a90a0;font-size:13px;line-height:1}
 
-/* ── PRINT ──────────────────────────────────────────────────────────────── */
-@media print{
-  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
-  html,body{height:auto!important;overflow:visible!important;background:#fff!important}
-  #login-screen,#loading-screen,.overlay,.hdr,.notes-footer,.cell-add,.jremove,
-  .job-strip,.week-rev,.rv-lbl,.rv-day,.rv-ros,.jval,.jchip-inv,.jchip-fin,
-  .sun-toggle,#print-modal,#viewer-info-overlay{display:none!important}
-  .main{overflow:visible!important;height:auto!important;background:#f7f5f0!important}
-  /* Let the grid expand to full width — no scroll containers in print */
-  .grid-outer{overflow:visible!important;width:100%!important}
-  /* Kill sticky so crew column sits normally in the flow */
-  .cl{position:static!important}
-  .rv-lbl{position:static!important}
-  .week-sec{page-break-inside:avoid;min-width:unset!important;width:100%!important}
-  .grid{width:100%!important}
-  /* Force 1fr columns to behave — use auto so they share space equally */
-  body[data-print="this"] .week-sec.next-week{display:none!important}
-  body[data-print="next"] .week-sec:not(.next-week){display:none!important}
-}
 /* ── PRINT MODAL ──────────────────────────────────────────────────────── */
 #print-modal{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:600;display:flex;align-items:center;justify-content:center}
 #print-modal.hidden{display:none}
@@ -1398,41 +1379,114 @@ function setTarget(wi, e){
 // ── PRINT ────────────────────────────────────────────────────────────────
 function openPrintModal(){document.getElementById('print-modal').classList.remove('hidden');}
 function closePrintModal(){document.getElementById('print-modal').classList.add('hidden');}
-function doPrint(which){
-  closePrintModal();
-  document.body.dataset.print=which;
-  // Apply layout fixes before print renders — inline styles beat everything
-  document.querySelectorAll('.cl,.rv-lbl').forEach(el=>{
-    el.style.position='static';el.style.left='';el.style.zIndex='';
-  });
-  document.querySelectorAll('.grid-outer').forEach(o=>{
-    o.style.overflow='visible';o.style.width='100%';
-  });
-  document.querySelectorAll('.grid').forEach(g=>{
-    g.style.gridTemplateColumns=g.style.gridTemplateColumns.replace(/1fr/g,'minmax(0,1fr)');
-  });
-  // Give browser a frame to recalculate layout, then print
-  requestAnimationFrame(()=>requestAnimationFrame(()=>{
-    window.print();
-    delete document.body.dataset.print;
-    if(S) render();
-  }));
+
+function buildPrintHTML(which){
+  const wi0=S.viewIdx, wi1=S.viewIdx+1;
+  const weeks=which==='both'?[wi1,wi0]:which==='next'?[wi1]:[wi0];
+  const DAY_SHORT=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const STATUS_COLOR={working:'#4a9eff',punch:'#d4a017',free:'#2db87a',standby:'#9b6dff'};
+
+  let weeksHTML='';
+  for(const wi of weeks){
+    const wk=S.weeks[wi]; if(!wk) continue;
+    const isNext=wi===wi1;
+    const nd=wk.hasSunday?7:6;
+    const label=isNext?'NEXT WEEK':'THIS WEEK';
+    const labelBg=isNext?'#f5c842':'#555c70';
+    const labelColor=isNext?'#000':'#fff';
+    const barBg=isNext?'#13161e':'#2e3448';
+
+    // Day header row
+    let thHTML=`<th style="width:56px;background:#e4e0d8;border:1px solid #c4bfb6;padding:5px 4px;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#5a5550">CREW</th>`;
+    for(let di=0;di<nd;di++){
+      thHTML+=`<th style="background:#ece8e1;border:1px solid #c4bfb6;padding:5px 4px;text-align:center;font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#3a3530">${DAY_SHORT[di]}<br><span style="font-size:8px;font-weight:400;color:#777;text-transform:none;letter-spacing:0">${wk.dates[di]||''}</span></th>`;
+    }
+    thHTML+=`<th style="width:80px;background:#e4e0d8;border:1px solid #c4bfb6;padding:5px 4px;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#5a5550">CREWS</th>`;
+
+    // Crew rows
+    let tbHTML='';
+    for(let ci=0;ci<S.numCrews;ci++){
+      const crew=S.crews[ci]||{num:ci+1,members:[]};
+      let tdHTML='';
+      for(let di=0;di<nd;di++){
+        const jobs=(wk.a[ci]&&wk.a[ci][di])||[];
+        let jobsHTML=jobs.map(j=>{
+          const jColor=(S.jobColors||{})[j.job];
+          const borderColor=jColor||STATUS_COLOR[j.s]||'#c4bfb6';
+          return `<div style="border-left:3px solid ${borderColor};padding:2px 4px;margin-bottom:3px;background:#f9f7f4">
+            <div style="font-size:9px;font-weight:700;line-height:1.25;color:#1a1714">${esc(j.job)}</div>
+            ${j.note?`<div style="font-size:8px;color:#777;font-style:italic;line-height:1.2">${esc(j.note)}</div>`:''}
+            ${j.night?'<span style="font-size:8px">🌙</span>':''}
+          </div>`;
+        }).join('');
+        tdHTML+=`<td style="border:1px solid #ddd9d1;padding:3px;vertical-align:top;min-height:40px">${jobsHTML}</td>`;
+      }
+      // Roster cell
+      const names=crew.members.length?crew.members.join('<br>'):'<span style="color:#bbb">—</span>';
+      tbHTML+=`<tr>
+        <td style="border:1px solid #c4bfb6;background:#eae7e0;text-align:center;vertical-align:middle;padding:4px 3px">
+          <div style="font-size:20px;font-weight:900;color:#3a3530;line-height:1">${crew.num}</div>
+          <div style="font-size:7px;color:#777;line-height:1.3;margin-top:2px">${names}</div>
+        </td>
+        ${tdHTML}
+        <td style="border:1px solid #c4bfb6;background:#eae7e0;padding:3px;vertical-align:top;font-size:8px;color:#555;line-height:1.5"></td>
+      </tr>`;
+    }
+
+    // Sat crew bar
+    let satHTML='';
+    if(nd>=6&&wk.satRoster&&wk.satRoster.length){
+      satHTML=`<div style="background:#f0ede5;border:1px solid #c4bfb6;border-top:none;padding:4px 8px;font-size:9px;color:#555"><strong style="font-size:8px;letter-spacing:.06em;text-transform:uppercase;color:#3a3530">SAT CREW:</strong> ${esc(wk.satRoster.join(', '))}</div>`;
+    }
+
+    weeksHTML+=`
+      <div style="margin-bottom:20px;page-break-inside:avoid">
+        <div style="background:${barBg};display:flex;align-items:center;gap:10px;padding:5px 8px">
+          <span style="background:${labelBg};color:${labelColor};font-size:9px;font-weight:900;letter-spacing:.12em;padding:2px 7px">${label}</span>
+          <span style="color:#e8eaf0;font-size:11px;font-weight:600">${wk.dates[0]} – ${wk.dates[nd-1]}</span>
+        </div>
+        <table style="width:100%;border-collapse:collapse;table-layout:fixed">
+          <thead><tr>${thHTML}</tr></thead>
+          <tbody>${tbHTML}</tbody>
+        </table>
+        ${satHTML}
+      </div>`;
+  }
+
+  const now=new Date();
+  const stamp=now.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})+' · '+now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+
+  return`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>SFS Crew Scheduler</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;font-size:10px;color:#1a1714;background:#fff;padding:12px 14px}
+@media print{
+  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+  body{padding:0}
+  div[style*="page-break-inside"]{page-break-inside:avoid}
+}
+</style></head><body>
+<div style="display:flex;align-items:center;justify-content:space-between;padding-bottom:10px;margin-bottom:14px;border-bottom:3px solid #f5c842">
+  <div style="display:flex;align-items:center;gap:8px">
+    <div style="width:28px;height:28px;background:#f5c842;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:12px">SF</div>
+    <div style="font-weight:700;font-size:14px;letter-spacing:.03em">SFS Crew Scheduler</div>
+  </div>
+  <div style="font-size:9px;color:#888;text-align:right">Printed ${stamp}</div>
+</div>
+${weeksHTML}
+</body></html>`;
 }
 
-// beforeprint/afterprint kept as fallback for Ctrl+P direct print
-window.addEventListener('beforeprint',()=>{
-  document.querySelectorAll('.cl,.rv-lbl').forEach(el=>{
-    el.style.position='static';el.style.left='';el.style.zIndex='';
-  });
-  document.querySelectorAll('.grid-outer').forEach(o=>{
-    o.style.overflow='visible';o.style.width='100%';
-  });
-  document.querySelectorAll('.grid').forEach(g=>{
-    g.style.gridTemplateColumns=g.style.gridTemplateColumns.replace(/1fr/g,'minmax(0,1fr)');
-  });
-});
-window.addEventListener('afterprint',()=>{ if(S) render(); });
-
+function doPrint(which){
+  closePrintModal();
+  const html=buildPrintHTML(which);
+  const win=window.open('','_blank','width=960,height=700');
+  if(!win){alert('Please allow popups for this site to print.');return;}
+  win.document.write(html);
+  win.document.close();
+  win.focus();
+  setTimeout(()=>{ win.print(); win.close(); },600);
+}
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){closeEdit();closeSummary();closeRoster();closePrintModal();closeViewerInfo();}
 });
