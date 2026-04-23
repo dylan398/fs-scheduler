@@ -310,6 +310,12 @@ body.viewer .jcard{cursor:default;touch-action:auto}
 body.viewer .job-chip{cursor:default;touch-action:auto}
 body.viewer .cl,.viewer .rc,.viewer .sat-bar{cursor:default;pointer-events:none}
 body.viewer #settings-btn{opacity:.4;pointer-events:none}
+body.viewer .jval{display:none!important}
+body.viewer .week-rev{display:none!important}
+body.viewer .rv-lbl{display:none!important}
+body.viewer .rv-day{display:none!important}
+body.viewer .rv-ros{display:none!important}
+body.viewer .jchip-inv{display:none!important}
 </style>
 
 </head>
@@ -1233,7 +1239,7 @@ function saveRoster(){
 // ── SUNDAY / CREWS / NAV ─────────────────────────────────────────────────
 function toggleSunday(wi){const wk=S.weeks[wi];wk.hasSunday=!wk.hasSunday;if(wk.hasSunday){if(!wk.dates[6])wk.dates[6]=addDays(wk.dates[5],1);wk.a.forEach(cr=>{if(cr.length<7)cr.push([]);});}else{wk.dates=wk.dates.slice(0,6);wk.a.forEach(cr=>cr.splice(6,1));}save();render();}
 function changeCrews(delta){const n=Math.max(1,Math.min(12,S.numCrews+delta));if(n===S.numCrews)return;if(n>S.numCrews){for(let i=S.numCrews;i<n;i++)S.crews.push({num:i+1,members:[]});S.weeks.forEach(wk=>{const nd=wk.hasSunday?7:6;for(let i=S.numCrews;i<n;i++)wk.a.push(Array.from({length:nd},()=>[]));});}else{S.crews=S.crews.slice(0,n);S.weeks.forEach(wk=>{wk.a=wk.a.slice(0,n);});}S.numCrews=n;document.getElementById('crew-count-lbl').textContent=n;document.getElementById('sp-crew-val').textContent=n;save();render();}
-function navigate(dir){const ni=S.viewIdx+dir;if(ni<0)return;S.viewIdx=ni;while(S.weeks.length<=S.viewIdx+1)addNextWeek();save();render();}
+function navigate(dir){const ni=S.viewIdx+dir;if(ni<0)return;S.viewIdx=ni;while(S.weeks.length<=S.viewIdx+1)addNextWeek();if(!VIEWER_MODE)save();render();}
 function updateNav(){document.getElementById('nav-prev').disabled=S.viewIdx===0;const w0=S.weeks[S.viewIdx],w1=S.weeks[S.viewIdx+1]||w0;const nd1=w1.hasSunday?7:6;document.getElementById('nav-range').textContent=`${w0.dates[0]} – ${w1.dates[nd1-1]||w1.dates[5]}`;document.getElementById('crew-count-lbl').textContent=S.numCrews;document.getElementById('sp-crew-val').textContent=S.numCrews;}
 
 // ── ENSURE DIMS ───────────────────────────────────────────────────────────
