@@ -68,8 +68,8 @@ body{background:#0d0f14;font-family:var(--font-b);font-size:13px;display:flex;fl
 .grid-outer::-webkit-scrollbar{height:3px}
 .grid-outer::-webkit-scrollbar-track{background:var(--bg-board)}
 .grid-outer::-webkit-scrollbar-thumb{background:var(--grid-dark)}
-/* JOB STRIP */
-.job-strip{background:#191d28;border-bottom:2px solid #252a38;display:flex;align-items:stretch;overflow-x:auto;min-height:60px}
+/* Job strip also needs smooth touch scroll */
+.job-strip{background:#191d28;border-bottom:2px solid #252a38;display:flex;align-items:stretch;overflow-x:auto;-webkit-overflow-scrolling:touch;min-height:60px}
 .job-strip::-webkit-scrollbar{height:3px}
 .job-strip::-webkit-scrollbar-track{background:#13161e}
 .job-strip::-webkit-scrollbar-thumb{background:#2e3448}
@@ -270,8 +270,14 @@ body{background:#0d0f14;font-family:var(--font-b);font-size:13px;display:flex;fl
   }
   .overlay{align-items:flex-end!important}
 
-  /* Login card — full width */
-  .login-card{width:calc(100vw - 32px);padding:24px 20px}
+  /* Job strip chips — allow horizontal scroll gesture to pass through */
+  .job-chip{touch-action:pan-x}
+  /* Job strip itself scrolls horizontally */
+  .job-strip{touch-action:pan-x}
+
+  /* Logo tappable on mobile for sign-out */
+  .logo{cursor:pointer}
+
 
   /* Print modal */
   .print-card{width:calc(100vw - 32px)}
@@ -435,8 +441,13 @@ body.viewer .jchip-inv{display:none!important}
   <style>@keyframes loadslide{0%{left:-40%}100%{left:100%}}</style>
 </div>
 
+<!-- VIEWER CARD INFO OVERLAY -->
+<div id="viewer-info-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;align-items:flex-end;justify-content:center" onclick="this.style.display='none'">
+  <div id="viewer-info-content" onclick="event.stopPropagation()" style="background:#fff;width:100%;max-width:520px;padding:20px 20px 28px;border-top:3px solid var(--yellow);max-height:70vh;overflow-y:auto"></div>
+</div>
+
 <header class="hdr">
-  <div class="logo">SF</div>
+  <div class="logo" onclick="doLogout()" title="Sign out / change mode">SF</div>
   <div class="brand">SFS Crew Scheduler</div>
   <div class="nav-cluster">
     <button class="nav-btn" id="nav-prev" onclick="navigate(-1)">‹</button>
@@ -983,6 +994,30 @@ function attachChipDrag(chipEl,wi,jobName){
 }
 
 // ── MODAL POSITIONING ─────────────────────────────────────────────────────
+function openViewerInfo(j){
+  const statColors={working:'var(--s-working)',punch:'var(--s-punch)',free:'var(--s-free)',standby:'var(--s-standby)'};
+  const statNames={working:'Working',punch:'Punch',free:'Free Job',standby:'Standby'};
+  const isDark=document.body.classList.contains('dark');
+  const bg=isDark?'#191d28':'#fff';
+  const txt=isDark?'#e8eaf0':'#1a1714';
+  const dim=isDark?'#8a90a0':'#5a5550';
+  const el=document.getElementById('viewer-info-content');
+  el.style.background=bg;el.style.color=txt;
+  el.innerHTML=`
+    <div style="font-family:var(--font-d);font-weight:800;font-size:20px;letter-spacing:.02em;color:${txt};margin-bottom:${j.note?'6px':'14px'};line-height:1.2">${esc(j.job)}</div>
+    ${j.note?`<div style="font-size:13px;color:${dim};font-style:italic;margin-bottom:14px;line-height:1.5">${esc(j.note)}</div>`:''}
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px">
+      ${j.s&&statNames[j.s]?`<span style="font-family:var(--font-d);font-weight:700;font-size:12px;letter-spacing:.06em;text-transform:uppercase;padding:4px 10px;border:1px solid ${statColors[j.s]||'#555'};color:${statColors[j.s]||'#555'}">${statNames[j.s]}</span>`:''}
+      ${j.night?`<span style="font-size:13px">🌙 Night work</span>`:''}
+      ${j.val?`<span style="font-family:var(--font-m);font-size:14px;font-weight:700;color:var(--green)">$${fmt(j.val)}/day</span>`:''}
+    </div>
+    <button onclick="document.getElementById('viewer-info-overlay').style.display='none'" style="width:100%;background:var(--yellow);border:none;padding:11px;font-family:var(--font-d);font-weight:800;font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:#000;cursor:pointer">CLOSE</button>
+  `;
+  document.getElementById('viewer-info-overlay').style.display='flex';
+}
+
+function closeViewerInfo(){document.getElementById('viewer-info-overlay').style.display='none';}
+
 function positionModal(modalEl,e){
   const vw=window.innerWidth,vh=window.innerHeight;
   if(vw<=768){
@@ -1079,6 +1114,10 @@ function buildWeek(wi,label,isNext){
         if(jobColor && !j.night) card.style.setProperty('--s-color', jobColor);
         card.innerHTML=`<button class="jremove" onpointerdown="stopProp(event)" onclick="removeJob(event,${wi},${di},${ci},${ji})">×</button><div class="jname">${esc(j.job)}</div>${j.note?`<div class="jnote">${esc(j.note)}</div>`:''}<div class="jfoot">${pill}${j.night?'<span class="jnight">🌙</span>':''}${j.val?`<span class="jval">$${fmt(j.val)}</span>`:''}</div>`;
         attachCardDrag(card,wi,di,ci,ji);
+        if(VIEWER_MODE){
+          card.style.cursor='pointer';
+          card.addEventListener('click',e=>{e.stopPropagation();openViewerInfo(j);});
+        }
         wrap.appendChild(card);
         cell.appendChild(wrap);
       });
@@ -1358,7 +1397,7 @@ function doPrint(which){
 }
 
 document.addEventListener('keydown',e=>{
-  if(e.key==='Escape'){closeEdit();closeSummary();closeRoster();closePrintModal();}
+  if(e.key==='Escape'){closeEdit();closeSummary();closeRoster();closePrintModal();closeViewerInfo();}
 });
 // Re-render on resize/rotation so mobile vs desktop layout switches correctly
 let _resizeTimer=null;
