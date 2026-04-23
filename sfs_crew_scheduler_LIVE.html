@@ -198,6 +198,91 @@ body{background:#0d0f14;font-family:var(--font-b);font-size:13px;display:flex;fl
 ::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-track{background:#e8e5de}
 ::-webkit-scrollbar-thumb{background:#c4bfb6}
+
+/* ── DARK MODE ─────────────────────────────────────────────────────────── */
+body.dark{background:#0d0f14}
+body.dark .main{background:#1a1d26}
+body.dark .cell{background:#1e2330;border-color:#2e3448}
+body.dark .cell.today-col{background:#162035}.dark .ch.day-h.today-h .dn{color:#4a9eff}
+body.dark .cell.sat-col{background:#222030}
+body.dark .cell.sun-col{background:#201e2e}
+body.dark .ch{background:#252a38;border-color:#3a4055;color:#8a90a0}
+body.dark .ch.corner,body.dark .ch.roster-h{background:#1e2330}
+body.dark .ch.day-h .dn{color:#a0a8c0}
+body.dark .ch.day-h .dd{color:#555c70}
+body.dark .ch.day-h.today-h{background:#162035}
+body.dark .ch.day-h.sat-h{background:#2a2820}.dark .ch.day-h.sat-h .dn{color:#c8a060}
+body.dark .ch.day-h.sun-h{background:#2a2420}.dark .ch.day-h.sun-h .dn{color:#b07050}
+body.dark .cl{background:#252a38;border-color:#3a4055}
+body.dark .cl:hover{background:#2e3448}
+body.dark .cl-num{color:#a0a8c0}
+body.dark .cl-sub{color:#555c70}
+body.dark .rc{background:#1e2330;border-color:#2e3448}
+body.dark .rc:hover{background:#252a38}
+body.dark .rc-label,.dark .rc-names{color:#555c70}
+body.dark .jcard{background:#252a38}
+body.dark .jcard.night{background:#191d28}
+body.dark .jname{color:#c8cad4}
+body.dark .jnote{color:#6a7080}
+body.dark .cell-add{color:#3a4055}
+body.dark .cell-add:hover{color:#555c70}
+body.dark .rv-lbl{background:#1a1d26;border-color:#2e3448}
+body.dark .rv-day{background:#1e2330;border-color:#2e3448}
+body.dark .rv-t{color:#8a90a0}
+body.dark .rv-ros{background:#1a1d26;border-color:#2e3448}
+body.dark .sat-bar{background:#252a38;border-color:#3a4055}
+body.dark .sat-bar:hover{background:#2e3448}
+body.dark .notes-footer{background:#1a1d26;border-color:#2e3448}
+body.dark .notes-ta{color:#a0a8c0}
+body.dark .notes-ta::placeholder{color:#3a4055}
+body.dark .notes-corner{background:#1e2330;border-color:#2e3448}
+body.dark .week-sec{border-color:#2e3448}
+body.dark .finput{background:#1e2330;border-color:#3a4055;color:#e8eaf0}
+body.dark .finput:focus{border-color:var(--blue);background:#252a38}
+body.dark .modal{background:#191d28}
+body.dark .mbody,body.dark .mfoot{background:#191d28}
+body.dark .per-day-display{background:#162035;border-color:#2e3448}
+
+/* ── TARGET COLOR CLASSES ───────────────────────────────────────────────── */
+.sched-green strong{color:var(--green)!important}
+.sched-yellow strong{color:var(--yellow)!important}
+.sched-red strong{color:var(--red)!important}
+
+/* ── JOB COLOR DOT ON CHIP ──────────────────────────────────────────────── */
+.jchip-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;display:inline-block}
+
+/* ── CHIP JOB NOTE ──────────────────────────────────────────────────────── */
+.jchip-note{font-size:10px;color:#555c70;font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+
+/* ── COLOR SWATCHES ─────────────────────────────────────────────────────── */
+.color-swatches{display:flex;gap:6px;flex-wrap:wrap;padding:4px 0}
+.cswatch{width:22px;height:22px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:transform .1s,border-color .1s;flex-shrink:0}
+.cswatch:hover{transform:scale(1.2)}
+.cswatch.selected{border-color:#fff;box-shadow:0 0 0 2px #555c70}
+.cswatch.none-swatch{background:#3a4055;position:relative}
+.cswatch.none-swatch::after{content:'×';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#8a90a0;font-size:13px;line-height:1}
+
+/* ── PRINT ──────────────────────────────────────────────────────────────── */
+@media print{
+  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+  html,body{height:auto!important;overflow:visible!important;background:#fff!important}
+  #login-screen,#loading-screen,.overlay,.hdr,.notes-footer,.cell-add,.jremove,
+  .job-strip,.week-rev,.rv-lbl,.rv-day,.rv-ros,.jval,.jchip-inv,.jchip-fin,
+  .sun-toggle,#print-modal{display:none!important}
+  .main{overflow:visible!important;height:auto!important;background:#f7f5f0!important}
+  .week-sec{page-break-inside:avoid}
+  body[data-print="this"] .week-sec.next-week{display:none!important}
+  body[data-print="next"] .week-sec:not(.next-week){display:none!important}
+}
+/* ── PRINT MODAL ──────────────────────────────────────────────────────── */
+#print-modal{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:600;display:flex;align-items:center;justify-content:center}
+#print-modal.hidden{display:none}
+.print-card{background:#13161e;border:1px solid #2e3448;border-top:3px solid var(--yellow);padding:24px 28px;min-width:260px;display:flex;flex-direction:column;gap:12px}
+.print-card h3{font-family:var(--font-d);font-weight:700;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:#8a90a0;margin-bottom:2px}
+.print-opt{background:#1e2330;border:1px solid #3a4055;color:#e8eaf0;padding:10px 14px;font-family:var(--font-d);font-weight:700;font-size:13px;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;text-align:left;transition:all .12s}
+.print-opt:hover{border-color:var(--yellow);color:var(--yellow)}
+.print-cancel{background:transparent;border:none;color:#555c70;font-size:11px;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;font-family:var(--font-d);padding:4px 0;text-align:center}
+.print-cancel:hover{color:#8a90a0}
 </style>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
@@ -288,6 +373,8 @@ body.viewer #settings-btn{opacity:.4;pointer-events:none}
     </div>
   </div>
   <div class="sync"><div class="sync-dot"></div><span id="sync-lbl">Saved</span></div>
+  <button class="hdr-btn" id="theme-btn" onclick="toggleTheme()" title="Toggle dark/light mode">☀</button>
+  <button class="hdr-btn" onclick="openPrintModal()" title="Print schedule">⎙</button>
   <div id="mode-badge" style="font-family:var(--font-mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:#3a4055;margin-left:6px;cursor:pointer" onclick="doLogout()" title="Click to sign out"></div>
 </header>
 
@@ -340,6 +427,12 @@ body.viewer #settings-btn{opacity:.4;pointer-events:none}
     </div>
     <div class="mbody">
       <div id="sum-jobname" style="font-family:var(--font-d);font-weight:800;font-size:17px;color:var(--txt);padding-bottom:10px;border-bottom:1px solid #e8e5de"></div>
+      <div><div class="flbl">Job Note <span class="flbl-hint">shows on strip chip</span></div>
+        <input class="finput" id="s-note" type="text" placeholder="e.g. Waiting on PO, Material delivery Tue…">
+      </div>
+      <div><div class="flbl">Color</div>
+        <div class="color-swatches" id="s-color-swatches"></div>
+      </div>
       <div class="f2col">
         <div><div class="flbl">Total Job Value ($)</div>
           <input class="finput" id="s-inv" type="number" placeholder="0" min="0" oninput="updatePerDay()">
@@ -379,6 +472,17 @@ body.viewer #settings-btn{opacity:.4;pointer-events:none}
   </div>
 </div>
 
+<!-- PRINT MODAL -->
+<div id="print-modal" class="hidden">
+  <div class="print-card">
+    <h3>Print Schedule</h3>
+    <button class="print-opt" onclick="doPrint('both')">Both Weeks</button>
+    <button class="print-opt" onclick="doPrint('next')">Next Week Only</button>
+    <button class="print-opt" onclick="doPrint('this')">This Week Only</button>
+    <button class="print-cancel" onclick="closePrintModal()">Cancel</button>
+  </div>
+</div>
+
 <script>
 // ── CONSTANTS ────────────────────────────────────────────────────────────
 const DAY_NAMES=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
@@ -391,7 +495,7 @@ const CREW_W=58,ROSTER_W=140;
 
 // ── DATA ─────────────────────────────────────────────────────────────────
 function emptyA(nc,nd){return Array.from({length:nc},()=>Array.from({length:nd},()=>[]));} 
-function mkWeek(dates){return{dates,hasSunday:false,satRoster:[],jobSummary:{},a:emptyA(5,dates.length)};}
+function mkWeek(dates){return{dates,hasSunday:false,satRoster:[],jobSummary:{},target:0,a:emptyA(5,dates.length)};}
 function wkDates(mon){const p=mon.split(' ');const yr=new Date().getFullYear();const b=new Date(yr,MI[p[0]],parseInt(p[1]));return Array.from({length:6},(_,i)=>{const d=new Date(b);d.setDate(b.getDate()+i);return MN[d.getMonth()]+' '+d.getDate();});}
 
 function initData(){
@@ -433,7 +537,7 @@ function initData(){
   w1.a[4][4]=[jb('Ben E. Keith','Restripe 112 lines','working',2000)];
   w1.a[4][5]=[jb('Ben E. Keith','Stencils + finish','working',2000)];
   w1.satRoster=['Robert','Jesse','Ed','Ronnie'];
-  return{numCrews:5,crews:[{num:1,members:['Robert','Olivia','Ronnie']},{num:2,members:['Bash','Jonathan','Charles']},{num:3,members:['Eric','Dano','Brandon']},{num:4,members:['Roman','Mark','Mike']},{num:5,members:['Jesse','Ed']}],weeks:[w0,w1],viewIdx:0,notes:''};
+  return{numCrews:5,crews:[{num:1,members:['Robert','Olivia','Ronnie']},{num:2,members:['Bash','Jonathan','Charles']},{num:3,members:['Eric','Dano','Brandon']},{num:4,members:['Roman','Mark','Mike']},{num:5,members:['Jesse','Ed']}],weeks:[w0,w1],viewIdx:0,notes:'',jobColors:{},jobRegistry:{}};
 }
 
 // ── ENVIRONMENT ──────────────────────────────────────────────────────────
@@ -522,6 +626,11 @@ function migrate(d) {
 
   if(d.viewIdx === undefined) d.viewIdx = 0;
   if(!d.notes) d.notes = '';
+  if(!d.jobColors) d.jobColors = {};
+  else d.jobColors = decodeJobColors(d.jobColors);
+  if(!d.jobRegistry) d.jobRegistry = {};
+  else d.jobRegistry = decodeJobRegistry(d.jobRegistry);
+  d.weeks.forEach(wk => { if(wk && wk.target === undefined) wk.target = 0; });
   delete d._sid;
   return d;
 }
@@ -535,7 +644,8 @@ function encodeJobSummary(obj) {
     __n: name,
     finishing: !!v.finishing,
     invoiceAmt: v.invoiceAmt || 0,
-    totalDays: v.totalDays || 0
+    totalDays: v.totalDays || 0,
+    note: v.note || ''
   }));
 }
 function decodeJobSummary(raw) {
@@ -547,23 +657,44 @@ function decodeJobSummary(raw) {
       obj[item.__n] = {
         finishing: !!item.finishing,
         invoiceAmt: item.invoiceAmt || 0,
-        totalDays: item.totalDays || 0
+        totalDays: item.totalDays || 0,
+        note: item.note || ''
       };
     }
   });
   return obj;
 }
+// jobColors: {jobName: '#hex'} — same Firebase key-safety treatment as jobSummary
+function encodeJobColors(obj) {
+  return Object.entries(obj || {}).map(([name, color]) => ({__n: name, color}));
+}
+function decodeJobColors(raw) {
+  if(!raw) return {};
+  const list = fbArr(raw, []).filter(Boolean);
+  const obj = {};
+  list.forEach(item => { if(item && item.__n) obj[item.__n] = item.color; });
+  return obj;
+}
+// jobRegistry: global job data by name {jobName: {invoiceAmt, totalDays, note}}
+function encodeJobRegistry(obj) {
+  return Object.entries(obj || {}).map(([name, v]) => ({__n: name, invoiceAmt: v.invoiceAmt||0, totalDays: v.totalDays||0, note: v.note||''}));
+}
+function decodeJobRegistry(raw) {
+  if(!raw) return {};
+  const list = fbArr(raw, []).filter(Boolean);
+  const obj = {};
+  list.forEach(item => { if(item && item.__n) obj[item.__n] = {invoiceAmt: item.invoiceAmt||0, totalDays: item.totalDays||0, note: item.note||''}; });
+  return obj;
+}
 
 function save() {
   _lastSaveTime = Date.now();
-  // Tag data with our session so the echo can be identified and ignored
   const payload = JSON.parse(JSON.stringify(S));
-  // Encode jobSummary keys to Firebase-safe array format
   (payload.weeks || []).forEach(wk => {
-    if (wk && wk.jobSummary) {
-      wk.jobSummary = encodeJobSummary(wk.jobSummary);
-    }
+    if (wk && wk.jobSummary) wk.jobSummary = encodeJobSummary(wk.jobSummary);
   });
+  if(payload.jobColors) payload.jobColors = encodeJobColors(payload.jobColors);
+  if(payload.jobRegistry) payload.jobRegistry = encodeJobRegistry(payload.jobRegistry);
   payload._sid = MY_SESSION;
   DB.ref(DB_PATH).set(payload)
     .then(() => setSync('Saved'))
@@ -604,6 +735,16 @@ const APP_PASS = 'Semperfi3004!';
 let VIEWER_MODE = false;
 
 function showLogin() {
+  const saved = localStorage.getItem('sfs_pass');
+  const savedMode = localStorage.getItem('sfs_mode');
+  if(saved === APP_PASS) {
+    VIEWER_MODE = (savedMode === 'viewer');
+    document.body.classList.toggle('viewer', VIEWER_MODE);
+    document.getElementById('mode-badge').textContent = VIEWER_MODE ? '👁 Viewer · ' + ENV : '✎ Editor · ' + ENV;
+    document.getElementById('loading-screen').style.display = 'flex';
+    initFirebase();
+    return;
+  }
   document.getElementById('login-screen').classList.remove('hidden');
   document.getElementById('loading-screen').style.display = 'none';
   document.getElementById('login-env').textContent = ENV + ' · /' + DB_PATH;
@@ -620,6 +761,8 @@ function doLogin() {
     return;
   }
   VIEWER_MODE = (mode === 'viewer');
+  localStorage.setItem('sfs_pass', pass);
+  localStorage.setItem('sfs_mode', mode);
   document.body.classList.toggle('viewer', VIEWER_MODE);
   document.getElementById('mode-badge').textContent = VIEWER_MODE ? '👁 Viewer · ' + ENV : '✎ Editor · ' + ENV;
   document.getElementById('login-screen').classList.add('hidden');
@@ -628,6 +771,8 @@ function doLogin() {
 }
 function doLogout() {
   // Clear session and reload to show login screen
+  localStorage.removeItem('sfs_pass');
+  localStorage.removeItem('sfs_mode');
   S = null;
   DB.ref(DB_PATH).off('value');
   document.getElementById('login-screen').classList.remove('hidden');
@@ -799,6 +944,8 @@ function positionModal(modalEl,e){
 }
 
 // ── RENDER ───────────────────────────────────────────────────────────────
+let _pendingSave = false;
+
 function render(){
   const main=document.getElementById('main');
   main.innerHTML='';
@@ -811,6 +958,7 @@ function render(){
   nf.innerHTML=`<div class="notes-inner"><div class="notes-lbl">Board Notes</div><textarea class="notes-ta" id="notes-ta" placeholder="Notes...">${esc(S.notes)}</textarea></div><div class="notes-corner"></div>`;
   main.appendChild(nf);
   document.getElementById('notes-ta').addEventListener('input',function(){if(!VIEWER_MODE){S.notes=this.value;save();}else{this.value=S.notes;}});
+  if(_pendingSave){_pendingSave=false;setTimeout(save,200);}
   updateNav();
 }
 
@@ -824,10 +972,15 @@ function buildWeek(wi,label,isNext){
   const nd=wk.hasSunday?7:6;
   ensureA(wi);syncJobSummary(wi);
   const wInv=calcWeekInv(wk),wSched=calcWeekSched(wk,nd);
+  const tgt=wk.target||0;
+  const schedClass=tgt>0?(wSched>=tgt?'sched-green':wSched>=tgt*.75?'sched-yellow':'sched-red'):'';
+  const tgtHtml=tgt>0
+    ?`<span style="font-size:10px;color:#555c70;margin-left:4px;cursor:pointer" onclick="setTarget(${wi},event)" title="Click to change target">/ $${fmt(tgt)} target</span>`
+    :`<span style="font-size:10px;color:#3a4055;margin-left:4px;cursor:pointer" onclick="setTarget(${wi},event)" title="Set weekly target">+ target</span>`;
   const sec=document.createElement('div');
   sec.className='week-sec'+(isNext?' next-week':'');
   const bar=mkEl('div','week-bar');
-  bar.innerHTML=`<div style="display:flex;align-items:center"><span class="week-tag ${isNext?'next':'curr'}">${label}</span><span class="week-title">${wk.dates[0]} – ${wk.dates[nd-1]}</span></div><div class="week-bar-right"><div class="week-rev"><span>Scheduled: <strong>$${fmt(wSched)}</strong></span><span class="inv">Invoice: $${fmt(wInv)}</span></div><button class="sun-toggle${wk.hasSunday?' on':''}" onclick="toggleSunday(${wi})">${wk.hasSunday?'− Sun':'+ Sun'}</button></div>`;
+  bar.innerHTML=`<div style="display:flex;align-items:center"><span class="week-tag ${isNext?'next':'curr'}">${label}</span><span class="week-title">${wk.dates[0]} – ${wk.dates[nd-1]}</span></div><div class="week-bar-right"><div class="week-rev ${schedClass}"><span>Scheduled: <strong>$${fmt(wSched)}</strong>${tgtHtml}</span><span class="inv">Invoice: $${fmt(wInv)}</span></div><button class="sun-toggle${wk.hasSunday?' on':''}" onclick="toggleSunday(${wi})">${wk.hasSunday?'− Sun':'+ Sun'}</button></div>`;
   sec.appendChild(bar);
   sec.appendChild(buildJobStrip(wi));
   const grid=mkEl('div','grid');
@@ -856,6 +1009,8 @@ function buildWeek(wi,label,isNext){
         const wrap=mkEl('div',`jcard-wrap s-${j.s}`);
         const pill=STAT_LABELS[j.s]?`<span class="jpill">${STAT_LABELS[j.s]}</span>`:'';
         const card=mkEl('div',`jcard${j.night?' night':''}`);
+        const jobColor=(S.jobColors||{})[j.job];
+        if(jobColor && !j.night) card.style.setProperty('--s-color', jobColor);
         card.innerHTML=`<button class="jremove" onpointerdown="stopProp(event)" onclick="removeJob(event,${wi},${di},${ci},${ji})">×</button><div class="jname">${esc(j.job)}</div>${j.note?`<div class="jnote">${esc(j.note)}</div>`:''}<div class="jfoot">${pill}${j.night?'<span class="jnight">🌙</span>':''}${j.val?`<span class="jval">$${fmt(j.val)}</span>`:''}</div>`;
         attachCardDrag(card,wi,di,ci,ji);
         wrap.appendChild(card);
@@ -902,8 +1057,11 @@ function buildJobStrip(wi){
   jobs.forEach(jobName=>{
     const d=wk.jobSummary[jobName];
     const hasInv=d.invoiceAmt>0;
+    const jobColor=(S.jobColors||{})[jobName];
+    const dotHtml=jobColor?`<span class="jchip-dot" style="background:${jobColor}"></span>`:'';
     const chip=mkEl('div',`job-chip${d.finishing?' is-finishing':''}${hasInv?' has-invoice':''}`);
-    chip.innerHTML=`<div class="jchip-name">${esc(jobName)}</div><div class="jchip-foot">${d.finishing?'<span class="jchip-fin">Finishing</span>':''}<span class="jchip-inv${hasInv?' has-val':''}">${hasInv?'$'+fmt(d.invoiceAmt):'+ Invoice'}</span></div>`;
+    if(jobColor) chip.style.borderLeftColor=jobColor;
+    chip.innerHTML=`<div class="jchip-name">${dotHtml}${dotHtml?' ':''}${esc(jobName)}</div>${d.note?`<div class="jchip-note">${esc(d.note)}</div>`:''}<div class="jchip-foot">${d.finishing?'<span class="jchip-fin">Finishing</span>':''}<span class="jchip-inv${hasInv?' has-val':''}">${hasInv?'$'+fmt(d.invoiceAmt):'+ Invoice'}</span></div>`;
     attachChipDrag(chip,wi,jobName);
     strip.appendChild(chip);
   });
@@ -913,9 +1071,29 @@ function buildJobStrip(wi){
 function syncJobSummary(wi){
   const wk=S.weeks[wi];
   if(!wk.jobSummary)wk.jobSummary={};
+  if(!S.jobColors)S.jobColors={};
+  if(!S.jobRegistry)S.jobRegistry={};
   const active=new Set();
   wk.a.forEach(cr=>cr.forEach(day=>(day||[]).forEach(j=>{if(j.job)active.add(j.job);})));
-  active.forEach(n=>{if(!wk.jobSummary[n])wk.jobSummary[n]={finishing:false,invoiceAmt:0,totalDays:0};});
+  active.forEach(n=>{
+    if(!wk.jobSummary[n]){
+      // Pull from global registry if available, otherwise defaults
+      const reg=S.jobRegistry[n]||{};
+      wk.jobSummary[n]={finishing:false,invoiceAmt:reg.invoiceAmt||0,totalDays:reg.totalDays||0,note:reg.note||''};
+      // Distribute per-day to cards in this week that don't already have a value
+      if(reg.invoiceAmt>0&&reg.totalDays>0){
+        const perDay=Math.round(reg.invoiceAmt/reg.totalDays);
+        wk.a.forEach(cr=>cr.forEach(day=>(day||[]).forEach(j=>{if(j.job===n&&!j.val)j.val=perDay;})));
+        _pendingSave=true;
+      }
+    }
+    // Auto-assign color if not set — pick one not already used by another job in this week
+    if(!S.jobColors[n]){
+      const usedInWeek=new Set(Array.from(active).filter(j=>j!==n&&S.jobColors[j]).map(j=>S.jobColors[j]));
+      const pick=JOB_COLORS.find(c=>!usedInWeek.has(c));
+      if(pick)S.jobColors[n]=pick;
+    }
+  });
   Object.keys(wk.jobSummary).forEach(n=>{if(!active.has(n))delete wk.jobSummary[n];});
 }
 
@@ -960,13 +1138,38 @@ function removeJob(e,wi,di,ci,ji){e.stopPropagation();S.weeks[wi].a[ci][di].spli
 function stopProp(e){e.stopPropagation();}
 
 // ── JOB SUMMARY MODAL ────────────────────────────────────────────────────
+const JOB_COLORS=['#e05252','#e07b2b','#f5c842','#2db87a','#4a9eff','#9b6dff','#e05299','#5ecfcf','#1a9e8f','#a0522d','#607d8b','#8b6914'];
+let _selectedColor = null;
+
+function buildColorSwatches(currentColor) {
+  _selectedColor = currentColor || null;
+  const container = document.getElementById('s-color-swatches');
+  container.innerHTML = '';
+  // None swatch
+  const none = document.createElement('div');
+  none.className = 'cswatch none-swatch' + (!_selectedColor ? ' selected' : '');
+  none.title = 'No color';
+  none.onclick = () => { _selectedColor = null; buildColorSwatches(null); };
+  container.appendChild(none);
+  JOB_COLORS.forEach(c => {
+    const sw = document.createElement('div');
+    sw.className = 'cswatch' + (c === _selectedColor ? ' selected' : '');
+    sw.style.background = c;
+    sw.title = c;
+    sw.onclick = () => { _selectedColor = c; buildColorSwatches(c); };
+    container.appendChild(sw);
+  });
+}
+
 function openJobSummary(wi,jobName,e){
   ASJ={wi,jobName};
-  const d=S.weeks[wi].jobSummary[jobName]||{finishing:false,invoiceAmt:0,totalDays:0};
+  const d=S.weeks[wi].jobSummary[jobName]||{finishing:false,invoiceAmt:0,totalDays:0,note:''};
   document.getElementById('sum-jobname').textContent=jobName;
+  document.getElementById('s-note').value=d.note||'';
   document.getElementById('s-inv').value=d.invoiceAmt||'';
   document.getElementById('s-days').value=d.totalDays||'';
   document.getElementById('s-finish').checked=!!d.finishing;
+  buildColorSwatches((S.jobColors||{})[jobName]||null);
   updatePerDay();
   document.getElementById('summary-ov').classList.remove('hidden');
   positionModal(document.getElementById('summary-modal'),e);
@@ -983,10 +1186,17 @@ function updatePerDay(){
 function saveSummary(){
   const{wi,jobName}=ASJ;
   if(!S.weeks[wi].jobSummary)S.weeks[wi].jobSummary={};
+  if(!S.jobRegistry)S.jobRegistry={};
   const inv=parseFloat(document.getElementById('s-inv').value)||0;
   const days=parseInt(document.getElementById('s-days').value)||0;
-  S.weeks[wi].jobSummary[jobName]={finishing:document.getElementById('s-finish').checked,invoiceAmt:inv,totalDays:days};
-  // Distribute per-day to all cells in this week with this job name
+  const note=document.getElementById('s-note').value.trim();
+  S.weeks[wi].jobSummary[jobName]={finishing:document.getElementById('s-finish').checked,invoiceAmt:inv,totalDays:days,note};
+  // Update global registry so same job name in other weeks inherits this data
+  S.jobRegistry[jobName]={invoiceAmt:inv,totalDays:days,note};
+  // Save color
+  if(!S.jobColors)S.jobColors={};
+  if(_selectedColor) S.jobColors[jobName]=_selectedColor;
+  else delete S.jobColors[jobName];
   if(inv>0&&days>0){
     const perDay=Math.round(inv/days);
     S.weeks[wi].a.forEach(cr=>cr.forEach(day=>(day||[]).forEach(j=>{if(j.job===jobName)j.val=perDay;})));
@@ -1039,7 +1249,46 @@ function mkEl(tag,cls,text){const e=document.createElement(tag);if(cls)e.classNa
 function fmt(n){return(n||0).toLocaleString('en-US');}
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function addDays(ds,n){const p=ds.split(' ');const yr=new Date().getFullYear();const d=new Date(yr,MI[p[0]],parseInt(p[1])+n);return MN[d.getMonth()]+' '+d.getDate();}
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeEdit();closeSummary();closeRoster();}});
+// ── DARK / LIGHT TOGGLE ──────────────────────────────────────────────────
+function toggleTheme(){
+  const dark=document.body.classList.toggle('dark');
+  localStorage.setItem('sfs_theme', dark?'dark':'light');
+  document.getElementById('theme-btn').textContent=dark?'☀':'🌙';
+}
+function applyTheme(){
+  const t=localStorage.getItem('sfs_theme');
+  if(t==='dark'){document.body.classList.add('dark');document.getElementById('theme-btn').textContent='☀';}
+  else{document.getElementById('theme-btn').textContent='🌙';}
+}
+applyTheme();
+
+// ── WEEKLY REVENUE TARGET ─────────────────────────────────────────────────
+function setTarget(wi, e){
+  e.stopPropagation();
+  const wk=S.weeks[wi];
+  const cur=wk.target||0;
+  const val=prompt('Set weekly revenue target ($):',cur>0?cur:'');
+  if(val===null)return;
+  const n=parseFloat(val)||0;
+  wk.target=n;
+  save();render();
+}
+
+// ── PRINT ────────────────────────────────────────────────────────────────
+function openPrintModal(){document.getElementById('print-modal').classList.remove('hidden');}
+function closePrintModal(){document.getElementById('print-modal').classList.add('hidden');}
+function doPrint(which){
+  closePrintModal();
+  document.body.dataset.print=which;
+  setTimeout(()=>{
+    window.print();
+    delete document.body.dataset.print;
+  },80);
+}
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){closeEdit();closeSummary();closeRoster();closePrintModal();}
+});
 // Boot is handled by showLogin() above — doLogin() calls initFirebase() on success.
 
 </script>
