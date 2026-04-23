@@ -352,9 +352,16 @@ body.dark .per-day-display{background:#162035;border-color:#2e3448}
   html,body{height:auto!important;overflow:visible!important;background:#fff!important}
   #login-screen,#loading-screen,.overlay,.hdr,.notes-footer,.cell-add,.jremove,
   .job-strip,.week-rev,.rv-lbl,.rv-day,.rv-ros,.jval,.jchip-inv,.jchip-fin,
-  .sun-toggle,#print-modal{display:none!important}
+  .sun-toggle,#print-modal,#viewer-info-overlay{display:none!important}
   .main{overflow:visible!important;height:auto!important;background:#f7f5f0!important}
-  .week-sec{page-break-inside:avoid}
+  /* Let the grid expand to full width — no scroll containers in print */
+  .grid-outer{overflow:visible!important;width:100%!important}
+  /* Kill sticky so crew column sits normally in the flow */
+  .cl{position:static!important}
+  .rv-lbl{position:static!important}
+  .week-sec{page-break-inside:avoid;min-width:unset!important;width:100%!important}
+  .grid{width:100%!important}
+  /* Force 1fr columns to behave — use auto so they share space equally */
   body[data-print="this"] .week-sec.next-week{display:none!important}
   body[data-print="next"] .week-sec:not(.next-week){display:none!important}
 }
@@ -1399,6 +1406,19 @@ function doPrint(which){
     delete document.body.dataset.print;
   },80);
 }
+
+// Fix grid layout for print — sticky + overflow cause column misalignment
+window.addEventListener('beforeprint',()=>{
+  document.querySelectorAll('.grid').forEach(g=>{
+    // Replace 1fr day columns with auto so they fill the page naturally
+    g.style.gridTemplateColumns = g.style.gridTemplateColumns.replace(/\d+fr/g,'auto').replace(/\d+px\s+auto/,'auto auto');
+    g._printFixed = true;
+  });
+});
+window.addEventListener('afterprint',()=>{
+  // Re-render to restore correct column widths
+  if(S) render();
+});
 
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){closeEdit();closeSummary();closeRoster();closePrintModal();closeViewerInfo();}
