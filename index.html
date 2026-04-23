@@ -1409,14 +1409,28 @@ function doPrint(which){
 
 // Fix grid layout for print — sticky + overflow cause column misalignment
 window.addEventListener('beforeprint',()=>{
+  // Force overflow visible on grid wrappers
+  document.querySelectorAll('.grid-outer').forEach(o=>{
+    o._oldOverflow = o.style.overflow;
+    o.style.overflow = 'visible';
+    o.style.width = '100%';
+  });
+  // Kill sticky on crew column and revenue label — inline style overrides everything
+  document.querySelectorAll('.cl,.rv-lbl').forEach(el=>{
+    el._oldPosition = el.style.position;
+    el._oldLeft = el.style.left;
+    el._oldZIndex = el.style.zIndex;
+    el.style.position = 'static';
+    el.style.left = '';
+    el.style.zIndex = '';
+  });
+  // Replace 1fr columns with minmax(0,1fr) to prevent content-driven sizing
   document.querySelectorAll('.grid').forEach(g=>{
-    // Replace 1fr day columns with auto so they fill the page naturally
-    g.style.gridTemplateColumns = g.style.gridTemplateColumns.replace(/\d+fr/g,'auto').replace(/\d+px\s+auto/,'auto auto');
-    g._printFixed = true;
+    g._oldCols = g.style.gridTemplateColumns;
+    g.style.gridTemplateColumns = g.style.gridTemplateColumns.replace(/1fr/g, 'minmax(0,1fr)');
   });
 });
 window.addEventListener('afterprint',()=>{
-  // Re-render to restore correct column widths
   if(S) render();
 });
 
