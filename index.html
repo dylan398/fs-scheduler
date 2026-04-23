@@ -270,10 +270,9 @@ body{background:#0d0f14;font-family:var(--font-b);font-size:13px;display:flex;fl
   }
   .overlay{align-items:flex-end!important}
 
-  /* Job strip chips — allow horizontal scroll gesture to pass through */
-  .job-chip{touch-action:pan-x}
-  /* Job strip itself scrolls horizontally */
-  .job-strip{touch-action:pan-x}
+  /* Job strip chips — no drag on mobile, let strip scroll freely */
+  .job-chip{touch-action:auto;cursor:default}
+  .job-strip{touch-action:auto}
 
   /* Logo tappable on mobile for sign-out */
   .logo{cursor:pointer}
@@ -960,6 +959,11 @@ function attachCardDrag(cardEl,wi,di,ci,ji){
 
 function attachChipDrag(chipEl,wi,jobName){
   if(VIEWER_MODE) return;
+  // On mobile: no drag — just tap to open summary
+  if(window.innerWidth<=768){
+    chipEl.addEventListener('click',e=>{ openJobSummary(wi,jobName,e); });
+    return;
+  }
   chipEl.addEventListener('pointerdown',e=>{
     if(e.button>0)return;
     e.preventDefault();
