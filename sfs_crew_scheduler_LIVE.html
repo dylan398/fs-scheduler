@@ -505,45 +505,16 @@ function mkWeek(dates){return{dates,hasSunday:false,satRoster:[],jobSummary:{},t
 function wkDates(mon){const p=mon.split(' ');const yr=new Date().getFullYear();const b=new Date(yr,MI[p[0]],parseInt(p[1]));return Array.from({length:6},(_,i)=>{const d=new Date(b);d.setDate(b.getDate()+i);return MN[d.getMonth()]+' '+d.getDate();});}
 
 function initData(){
-  const jb=(job,note,s,val,night)=>({job,note,s,val:val||0,night:!!night});
-  const w0=mkWeek(wkDates('Apr 20')),w1=mkWeek(wkDates('Apr 27'));
-  w0.a[0][0]=[jb('Frisco Downtown Garage','Parking lines phase 1','working',3000)];
-  w0.a[0][1]=[jb('Frisco Downtown Garage','Wall + custom signs','working',2500)];
-  w0.a[0][2]=[jb('Frisco Downtown Garage','Finish + stencils','working',2000)];
-  w0.a[1][0]=[jb('Stacy Retail','Pre-vertical fire lane','working',1400)];
-  w0.a[1][1]=[jb('Whitesboro HS','TxDOT Thermo','working',2000)];
-  w0.a[1][2]=[jb('Whitesboro HS','Private striping','working',1500)];
-  w0.a[1][3]=[jb('Bomar Parking Lot','Layout + striping','working',1500)];
-  w0.a[1][4]=[jb('Bomar Parking Lot','Finish','working',500)];
-  w0.a[2][2]=[jb('New Faith Baptist','Seal coat prep','working',2000)];
-  w0.a[2][3]=[jb('New Faith Baptist','Stripe + ADA','working',2400)];
-  w0.a[2][4]=[jb('13757 Assembly Park','Power wash','working',800)];
-  w0.a[2][5]=[jb('13757 Assembly Park','Stripe + finish','working',1400)];
-  w0.a[3][3]=[jb("BJ's Fort Worth",'Signs + bollard sleeves','working',0)];
-  w0.a[3][4]=[jb('Primrose South','Turn 7 striping','working',1500)];
-  w0.a[3][5]=[jb('Primrose South','Small patch','working',500)];
-  w0.a[4][0]=[jb('EMA Corporate','Parking lines + WS','working',2500)];
-  w0.a[4][1]=[jb('EMA Corporate','Finish + signs','working',0)];
-  w0.a[4][4]=[jb('Embassy Suites','Sandblast + stripe','working',3200,true)];
-  w0.jobSummary={'Frisco Downtown Garage':{finishing:false,invoiceAmt:16000,totalDays:5},'Stacy Retail':{finishing:true,invoiceAmt:1400,totalDays:1},'Whitesboro HS':{finishing:true,invoiceAmt:3500,totalDays:2},'Bomar Parking Lot':{finishing:true,invoiceAmt:2000,totalDays:2},'New Faith Baptist':{finishing:true,invoiceAmt:4400,totalDays:2},'13757 Assembly Park':{finishing:true,invoiceAmt:2200,totalDays:2},"BJ's Fort Worth":{finishing:false,invoiceAmt:0,totalDays:0},'Primrose South':{finishing:false,invoiceAmt:0,totalDays:0},'EMA Corporate':{finishing:true,invoiceAmt:2500,totalDays:2},'Embassy Suites':{finishing:false,invoiceAmt:8500,totalDays:3}};
-  w1.a[0][0]=[jb('Pickleball Ct - Irving','Power wash + layout','working',3000)];
-  w1.a[0][1]=[jb('Pickleball Ct - Irving','Court lines + finish','working',5000)];
-  w1.a[0][3]=[jb('3017 Oakey Trail','Full site wash','working',2000)];
-  w1.a[0][4]=[jb('3017 Oakey Trail','Stripe + signs + WS','working',6000)];
-  w1.a[0][5]=[jb('3017 Oakey Trail','Finish + cleanup','working',5000)];
-  w1.a[1][0]=[jb('Frisco Downtown Garage','Remaining lines','working',3000)];
-  w1.a[1][1]=[jb('Frisco Downtown Garage','Stencils + punch finish','working',2000)];
-  w1.a[1][3]=[jb('4217 Lively Ln','Pickleball court layout','working',3500)];
-  w1.a[1][4]=[jb('4217 Lively Ln','Court lines + finish','working',3500)];
-  w1.a[2][1]=[jb('Masch Branch Rd','Sandblast + fire lane','working',2160)];
-  w1.a[2][2]=[jb('Masch Branch Rd','Dividing line + finish','working',0)];
-  w1.a[2][4]=[jb('Trinity Bible Church','WS replacement + stripe','working',450)];
-  w1.a[3][0]=[jb('Dan Addante','12" numbers + 13 lines','working',725)];
-  w1.a[3][3]=[jb('Mill Stream Apts','No parking stencils','punch',0)];
-  w1.a[4][4]=[jb('Ben E. Keith','Restripe 112 lines','working',2000)];
-  w1.a[4][5]=[jb('Ben E. Keith','Stencils + finish','working',2000)];
-  w1.satRoster=['Robert','Jesse','Ed','Ronnie'];
-  return{numCrews:5,crews:[{num:1,members:['Robert','Olivia','Ronnie']},{num:2,members:['Bash','Jonathan','Charles']},{num:3,members:['Eric','Dano','Brandon']},{num:4,members:['Roman','Mark','Mike']},{num:5,members:['Jesse','Ed']}],weeks:[w0,w1],viewIdx:0,notes:'',jobColors:{},jobRegistry:{}};
+  const now=new Date();
+  // Start this week on the current Monday
+  const day=now.getDay()||7;
+  const mon=new Date(now);mon.setDate(now.getDate()-(day-1));
+  const monStr=MN[mon.getMonth()]+' '+mon.getDate();
+  const w0=mkWeek(wkDates(monStr));
+  const nextMonDate=new Date(mon);nextMonDate.setDate(mon.getDate()+7);
+  const nextMonStr=MN[nextMonDate.getMonth()]+' '+nextMonDate.getDate();
+  const w1=mkWeek(wkDates(nextMonStr));
+  return{numCrews:5,crews:[{num:1,members:[]},{num:2,members:[]},{num:3,members:[]},{num:4,members:[]},{num:5,members:[]}],weeks:[w0,w1],viewIdx:0,notes:'',jobColors:{},jobRegistry:{}};
 }
 
 // ── ENVIRONMENT ──────────────────────────────────────────────────────────
