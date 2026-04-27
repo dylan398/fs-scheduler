@@ -329,7 +329,7 @@ body.dark .per-day-display{background:#162035;border-color:#2e3448}
 body.dark .jcard.oot:not(.night){background:#1e0e00}
 .pres-jcard.oot:not(.night){border-left-color:#d47800!important;background:#2d1600!important}
 .pres-jcard.oot:not(.night) .pres-jname{color:#f4a830}
-.pres-jcard.oot:not(.night) .pres-jnote{color:#9a6020}
+.pres-jcard.oot:not(.night) .pres-jnote{color:#c87820}
 
 /* ── TARGET COLOR CLASSES ───────────────────────────────────────────────── */
 .sched-green strong{color:var(--green)!important}
@@ -354,100 +354,142 @@ body.dark .jcard.oot:not(.night){background:#1e0e00}
 .cswatch.none-swatch::after{content:'×';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#8a90a0;font-size:13px;line-height:1}
 
 /* ── PRESENTATION MODE ──────────────────────────────────────────────────── */
-/* Body-level locks — all layout is handled by renderPresent() */
 body.present-editor,body.present-viewer{overflow:hidden}
 body.present-editor .hdr{height:38px}
 body.present-editor .brand{display:none}
 body.present-editor #theme-btn{display:none}
 body.present-editor .settings-pop{display:none!important}
 body.present-editor #present-btn{border-color:var(--yellow);color:var(--yellow)}
-body.present-viewer .hdr{height:32px;background:#0d0f14;border-bottom:1px solid #1e2330}
+body.present-viewer .hdr{height:32px;background:#07090e;border-bottom:1px solid #14171f}
 body.present-viewer .brand{display:none}
 body.present-viewer .sync{display:none}
 body.present-viewer #theme-btn{display:none}
 body.present-viewer #settings-btn{display:none}
+body.present-viewer .pres-strip{display:none!important}
 body.present-viewer #present-btn{border-color:var(--green);color:var(--green)}
 body.present-editor #pres-week-controls,body.present-viewer #pres-week-controls{display:flex!important}
-/* pres-main fills everything below the header */
-.pres-main{display:flex;flex-direction:row;gap:3px;background:#0d0f14;padding:3px;overflow:hidden}
-.pres-week{flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden;background:var(--bg-board);border:1px solid var(--grid-dark)}
-.pres-week.dark-mode{background:#1a1d26;border-color:#2e3448}
-.pres-bar{flex-shrink:0;background:#13161e;display:flex;align-items:center;justify-content:space-between;padding:4px 10px;border-bottom:2px solid var(--yellow)}
-.pres-bar.curr-bar{border-bottom-color:#3a4055}
-.pres-bar-left{display:flex;align-items:center;gap:8px}
-.pres-week-label{font-family:var(--font-d);font-weight:900;font-size:11px;letter-spacing:.14em;text-transform:uppercase;padding:2px 8px;background:var(--yellow);color:#000}
-.pres-week-label.curr{background:#2e3448;color:#8a90a0}
-.pres-week-dates{font-family:var(--font-d);font-weight:700;font-size:13px;color:#e8eaf0;letter-spacing:.03em}
-.pres-bar-rev{font-family:var(--font-m);font-size:11px;color:#8a90a0;display:flex;gap:12px;align-items:center}
-.pres-bar-rev .inv{color:var(--green);font-weight:600}
-/* Job strip in present mode */
-.pres-strip{flex-shrink:0;background:#191d28;border-bottom:1px solid #252a38;display:flex;align-items:center;flex-wrap:wrap;overflow:visible;gap:0}
+
+/* ── CREW SPOTLIGHT TV MODE ───────────────────────────────────────────────── */
+.pres-sp-wrap{display:flex;flex-direction:column;height:100%;overflow:hidden;background:#07090e}
+.pres-sp-bar{flex-shrink:0;background:#07090e;display:flex;align-items:center;justify-content:space-between;padding:5px 18px;border-bottom:2px solid #f5c842}
+.pres-sp-bar-left{display:flex;align-items:center;gap:10px}
+.pres-sp-wklabel{font-family:var(--font-d);font-weight:900;font-size:10px;letter-spacing:.2em;text-transform:uppercase;padding:3px 10px;background:#f5c842;color:#000}
+.pres-sp-dates{font-family:var(--font-d);font-weight:700;font-size:clamp(12px,1.4vh,17px);color:#d0d4e0;letter-spacing:.04em}
+.pres-sp-rev{font-family:var(--font-m);font-size:clamp(10px,1.1vh,13px);color:#4a5468;display:flex;gap:14px}
+.pres-sp-rev .inv{color:#3ecf8e;font-weight:700}
+.pres-sp-rev .sch{font-weight:700}
+/* Day header row */
+.pres-sp-dhrow{flex-shrink:0;display:flex;border-bottom:2px solid #1e2330}
+.pres-sp-corner{flex-shrink:0;width:120px;background:#07090e;border-right:2px solid #1e2330}
+/* Crew rows container */
+.pres-sp-rows{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+/* Individual crew row */
+.pres-sp-row{display:flex;flex:1;min-height:0;overflow:hidden;border-bottom:1px solid #14171f;transition:flex-basis .8s cubic-bezier(.4,0,.2,1)}
+.pres-sp-row:last-child{border-bottom:none}
+/* Crew label cell */
+.pres-sp-cl{flex-shrink:0;width:120px;background:#07090e;border-right:2px solid #1e2330;border-left:3px solid transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px 3px;overflow:hidden;position:relative;transition:border-left-color .4s,background .4s}
+.pres-sp-row.spotlight .pres-sp-cl{border-left-color:#f5c842;background:#050709}
+.pres-sp-cl-num{font-family:var(--font-d);font-weight:900;color:#f5c842;line-height:1;font-size:22px;transition:font-size .7s ease,text-shadow .7s ease}
+.pres-sp-row.spotlight .pres-sp-cl-num{font-size:clamp(32px,4.2vh,50px)}
+@keyframes spPulse{0%,100%{text-shadow:0 0 18px rgba(245,200,66,.4)}50%{text-shadow:0 0 36px rgba(245,200,66,.85),0 0 60px rgba(245,200,66,.25)}}
+.pres-sp-row.spotlight .pres-sp-cl-num{animation:spPulse 2.8s ease-in-out infinite}
+.pres-sp-row:not(.spotlight) .pres-sp-cl-num{animation:none}
+.pres-sp-cl-names{font-family:var(--font-d);font-weight:600;color:#8898ac;text-align:center;line-height:1.3;margin-top:3px;word-break:break-word;overflow:hidden;font-size:9px;transition:font-size .7s ease}
+.pres-sp-row.spotlight .pres-sp-cl-names{font-size:13px}
+/* Timer bar — fills over cycle duration */
+.pres-sp-timer{position:absolute;bottom:0;left:0;height:3px;background:#f5c842;width:0%;opacity:.75;pointer-events:none}
+/* Day cells */
+.pres-sp-cell{flex:1;min-width:0;background:#0b0d14;border-right:1px solid #14171f;padding:3px;display:flex;flex-direction:column;gap:2px;overflow:hidden;align-items:stretch}
+.pres-sp-cell:last-child{border-right:none}
+.pres-sp-cell.today{background:#091220;border-left:2px solid #1e3a6e}
+.pres-sp-cell.sat{background:#09090e}
+/* Cards — natural height, no stretching */
+.pres-sp-cell .pres-jcard{flex:none!important;height:auto!important;min-height:unset!important}
+/* Dim non-spotlight cards */
+.pres-sp-row:not(.spotlight) .pres-jcard{opacity:.55;transition:opacity .8s ease}
+.pres-sp-row.spotlight .pres-jcard{opacity:1;transition:opacity .8s ease}
+/* Font transitions on card text */
+.pres-jname{transition:font-size .65s ease}
+.pres-jnote{transition:font-size .65s ease,opacity .65s ease}
+
+/* Week panel */
+.pres-week{flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden;background:#07090e}
+
+/* Header bar */
+.pres-bar{flex-shrink:0;background:#07090e;display:flex;align-items:center;justify-content:space-between;padding:5px 16px;border-bottom:2px solid #f5c842}
+.pres-bar.curr-bar{border-bottom-color:#1e2330}
+.pres-bar-left{display:flex;align-items:center;gap:10px}
+.pres-week-label{font-family:var(--font-d);font-weight:900;font-size:10px;letter-spacing:.2em;text-transform:uppercase;padding:3px 10px;background:#f5c842;color:#000}
+.pres-week-label.curr{background:#1a1d26;color:#3a4055}
+.pres-week-dates{font-family:var(--font-d);font-weight:700;font-size:clamp(13px,1.5vh,19px);color:#d0d4e0;letter-spacing:.04em}
+.pres-bar-rev{font-family:var(--font-m);font-size:clamp(10px,1.1vh,14px);color:#555c70;display:flex;gap:16px;align-items:center}
+.pres-bar-rev .inv{color:#3ecf8e;font-weight:700}
+.pres-bar-rev .sched{font-weight:700}
+
+/* Job strip — editor only */
+.pres-strip{flex-shrink:0;background:#07090e;border-bottom:1px solid #14171f;display:flex;align-items:center;overflow-x:auto;overflow-y:hidden;gap:0;height:30px}
 .pres-strip::-webkit-scrollbar{height:2px}
-.pres-strip::-webkit-scrollbar-thumb{background:#3a4055}
-.pres-chip{display:flex;align-items:center;gap:5px;padding:4px 8px;border-right:1px solid #252a38;border-left:3px solid transparent;flex-shrink:0;cursor:pointer;transition:background .1s;white-space:nowrap}
-.pres-chip:hover{background:#1e2330}
-.pres-chip-name{font-family:var(--font-d);font-weight:700;font-size:11px;color:#c8cad4}
-.pres-chip-pm{font-size:9px;color:#4a9eff;font-weight:700;margin-left:2px}
-.pres-chip-inv{font-family:var(--font-m);font-size:10px;color:#3a4055}
-.pres-chip-inv.has{color:var(--green)}
-.pres-chip-fin{font-size:9px;color:var(--orange);font-weight:700;margin-left:3px}
+.pres-strip::-webkit-scrollbar-thumb{background:#2e3448}
+.pres-chip{display:flex;align-items:center;gap:5px;padding:3px 10px;border-right:1px solid #14171f;border-left:4px solid transparent;flex-shrink:0;cursor:pointer;transition:background .1s;white-space:nowrap;height:100%}
+.pres-chip:hover{background:#10131a}
+.pres-chip-name{font-family:var(--font-d);font-weight:700;font-size:11px;color:#8a90a0}
+.pres-chip-pm{font-size:9px;color:#4a9eff;font-weight:700}
+.pres-chip-inv{font-family:var(--font-m);font-size:10px;color:#2e3448}
+.pres-chip-inv.has{color:#3ecf8e}
+.pres-chip-fin{font-size:9px;color:var(--orange);font-weight:700}
+
 /* Grid */
 .pres-grid-outer{flex:1;min-height:0;overflow:hidden}
 .pres-grid{display:grid;height:100%}
-/* Day header cells */
-.pres-dh{background:#ece8e1;border-right:1px solid var(--grid-dark);border-bottom:1px solid var(--grid-dark);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3px}
-.pres-dh.today{background:#deeaff}
-.pres-dh.sat{background:#f0ede5}
-.pres-dh .dn{font-family:var(--font-d);font-weight:800;font-size:16px;letter-spacing:.06em;text-transform:uppercase;color:#3a3530;line-height:1}
-.pres-dh .dd{font-family:var(--font-m);font-size:10px;color:var(--txt-muted);margin-top:1px}
-.pres-dh.today .dn{color:#1a5fa0}
+
+/* Day headers */
+.pres-dh{background:#0b0d14;border-right:1px solid #14171f;border-bottom:2px solid #1e2330;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4px 2px}
+.pres-dh.today{background:#0a1626;border-bottom-color:#2a4a80}
+.pres-dh.sat{background:#09090e}
+.pres-dh .dn{font-family:var(--font-d);font-weight:900;font-size:clamp(11px,1.6vh,20px);letter-spacing:.1em;text-transform:uppercase;color:#b0b8cc;line-height:1}
+.pres-dh .dd{font-family:var(--font-m);font-size:clamp(8px,.95vh,12px);color:#8090a8;margin-top:2px}
+.pres-dh.today .dn{color:#5a9eff}
+.pres-dh.today .dd{color:#5a8acc}
+
 /* Corner */
-.pres-corner{background:#e4e0d8;border-right:2px solid var(--grid-dark);border-bottom:1px solid var(--grid-dark)}
-/* Crew label cells */
-.pres-cl{background:var(--crew-col);border-right:2px solid var(--grid-dark);border-bottom:1px solid var(--grid);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;padding:3px;overflow:hidden}
-.pres-cl:hover{background:#dedad2}
-.pres-cl-num{font-family:var(--font-d);font-weight:900;font-size:28px;color:#3a3530;line-height:1}
-.pres-cl-names{font-size:10px;color:var(--txt-muted);text-align:center;line-height:1.45;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:52px}
-/* Job cells */
-.pres-cell{border-right:1px solid var(--grid);border-bottom:1px solid var(--grid);background:#fff;padding:3px;overflow:hidden;position:relative;display:flex;flex-direction:column;gap:2px}
-.pres-cell.today{background:#edf4ff}
-.pres-cell.sat{background:#faf8f3}
-.pres-cell.pres-empty{background:#f2efe8}
-/* Card base — fills available cell height equally */
-.pres-jcard{flex:1;min-height:0;border-left:7px solid #c4bfb6;background:#faf8f5;padding:8px 10px 6px 12px;overflow:hidden;position:relative;display:flex;flex-direction:column}
-.pres-jcard.night{background:#191d2a}
-/* Job name — scales with TV resolution via vh */
-.pres-jname{font-family:var(--font-d);font-weight:800;font-size:clamp(13px,2.2vh,30px);color:#1a1714;line-height:1.15;overflow:hidden;padding-right:16px;word-break:break-word}
-.pres-jcard.night .pres-jname{color:#c8d0e0}
-/* Note — visible, scales down gracefully */
-.pres-jnote{font-size:clamp(10px,1.3vh,16px);color:#7a7470;font-style:italic;overflow:hidden;margin-top:3px;word-break:break-word}
-.pres-jcard.night .pres-jnote{color:#8090a8}
+.pres-corner{background:#07090e;border-right:2px solid #1e2330;border-bottom:2px solid #1e2330}
+
+/* Crew label column */
+.pres-cl{background:#07090e;border-right:2px solid #1e2330;border-bottom:1px solid #14171f;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4px 2px;overflow:hidden}
+.pres-cl-num{font-family:var(--font-d);font-weight:900;font-size:clamp(18px,2.8vh,36px);color:#f5c842;line-height:1;text-shadow:0 0 20px rgba(245,200,66,.4)}
+.pres-cl-names{font-family:var(--font-d);font-weight:600;color:#8898ac;text-align:center;line-height:1.3;margin-top:2px;word-break:break-word;overflow:hidden}
+
+/* Job cells — dark canvas, cards float on top */
+.pres-cell{border-right:1px solid #14171f;border-bottom:1px solid #14171f;background:#0b0d14;padding:3px;overflow:hidden;display:flex;flex-direction:column;gap:2px;justify-content:flex-start}
+.pres-cell.today{background:#091220;border-left:2px solid #1e3a6e;border-right:1px solid #14171f}
+.pres-cell.sat{background:#09090e}
+.pres-cell.pres-empty{background:#07090e}
+
+/* Cards — LIGHT on dark grid, high contrast */
+.pres-jcard{flex:none;border-left:9px solid #3a4055;background:#dde1ec;padding:7px 9px 5px 10px;overflow:hidden;position:relative;display:flex;flex-direction:column;border-radius:1px}
+.pres-jcard.night{background:#0e1428;border-left-color:#4a6aee}
+/* OOT: dark amber — DO NOT override here, controlled by line 330 !important */
+
+/* Job name — dark text on light card */
+.pres-jname{font-family:var(--font-d);font-weight:900;font-size:20px;color:#141720;line-height:1.1;overflow:hidden;padding-right:12px;word-break:break-word;letter-spacing:.01em}
+.pres-jcard.night .pres-jname{color:#c8deff}
+/* OOT name color handled by line 331 (#f4a830 on dark amber) */
+
+/* Note */
+.pres-jnote{font-size:12px;color:#606878;font-style:italic;overflow:hidden;margin-top:2px;word-break:break-word}
+.pres-jcard.night .pres-jnote{color:#6888a8}
+
 /* Status footer */
-.pres-jfoot{display:flex;align-items:center;gap:5px;margin-top:4px;flex-shrink:0}
-.pres-jstat{font-family:var(--font-d);font-weight:800;font-size:clamp(8px,1vh,12px);letter-spacing:.07em;text-transform:uppercase;padding:2px 6px;border:1px solid currentColor}
-.pres-jnight{font-size:clamp(10px,1.3vh,16px);line-height:1}
-/* Remove button */
-.pres-jremove{position:absolute;top:4px;right:4px;background:rgba(0,0,0,.1);border:none;color:#bbb;width:17px;height:17px;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;line-height:1}
-.pres-jremove:hover{color:var(--red);background:rgba(224,82,82,.18)}
-/* Add button */
-.pres-add{flex:1;display:flex;align-items:center;justify-content:center;color:#cac6bc;font-size:28px;cursor:pointer;font-family:var(--font-d);font-weight:300;line-height:1;min-height:20px;transition:color .12s}
-.pres-add:hover{color:#999590}
-.pres-add.has-jobs{flex:0 0 16px;font-size:13px;min-height:0;color:#ddd9d0}
-/* Dark mode */
-body.dark .pres-week{background:#1a1d26;border-color:#2e3448}
-body.dark .pres-dh{background:#252a38;border-color:#3a4055}
-body.dark .pres-dh .dn{color:#a0a8c0}
-body.dark .pres-dh .dd{color:#555c70}
-body.dark .pres-dh.today{background:#162035}
-body.dark .pres-corner{background:#1e2330}
-body.dark .pres-cl{background:#252a38;border-color:#3a4055}
-body.dark .pres-cl-num{color:#a0a8c0}
-body.dark .pres-cl-names{color:#555c70}
-body.dark .pres-cell{background:#1e2330;border-color:#2e3448}
-body.dark .pres-cell.today{background:#162035}
-body.dark .pres-cell.pres-empty{background:#181c28}
-body.dark .pres-jcard{background:#252a38}
-body.dark .pres-jcard:not(.night){background:#252a38}
+.pres-jfoot{display:flex;align-items:center;gap:4px;margin-top:3px;flex-shrink:0;flex-wrap:wrap}
+.pres-jstat{font-family:var(--font-d);font-weight:800;font-size:clamp(7px,.85vh,10px);letter-spacing:.06em;text-transform:uppercase;padding:1px 5px;border-radius:2px;color:#fff}
+.pres-jnight{font-size:clamp(9px,1.1vh,14px);line-height:1}
+
+/* Remove / Add */
+.pres-jremove{position:absolute;top:3px;right:3px;background:rgba(0,0,0,.1);border:none;color:#8a90a0;width:15px;height:15px;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;line-height:1;border-radius:2px;transition:all .12s}
+.pres-jremove:hover{color:var(--red);background:rgba(224,82,82,.2)}
+.pres-add{flex:1;display:flex;align-items:center;justify-content:center;color:#14171f;font-size:22px;cursor:pointer;font-family:var(--font-d);font-weight:300;line-height:1;min-height:16px;transition:color .12s}
+.pres-add:hover{color:#2e3448}
+.pres-add.has-jobs{flex:0 0 12px;font-size:10px;min-height:0;color:#14171f}
 
 /* ── SCHEDULED TO INVOICE ───────────────────────────────────────────────── */
 .sched-inv-block{display:flex;align-items:center;gap:5px;font-family:var(--font-m);font-size:11px;color:#8a90a0;cursor:pointer;padding-right:10px;border-right:1px solid #3a4055;transition:color .12s;flex-shrink:0}
@@ -591,7 +633,7 @@ body.viewer #undo-btn{display:none!important}
   <button class="hdr-btn" onclick="openPrintModal()" title="Print schedule">⎙</button>
   <button class="hdr-btn" id="present-btn" onclick="togglePresent()" title="Presentation mode (F11 for fullscreen)">⛶</button>
   <div id="pres-week-controls" style="display:none;align-items:center;gap:4px">
-    <button class="hdr-btn" id="pres-count-btn" onclick="togglePresentCount()" title="Toggle 1/2 week view">2W</button>
+    <button class="hdr-btn" id="pres-count-btn" onclick="togglePresentCount()" title="Toggle TV day-cycle / Meeting week view">MTG</button>
   </div>
   <div id="mode-badge" style="font-family:var(--font-mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:#3a4055;margin-left:6px;cursor:pointer" onclick="doLogout()" title="Click to sign out"></div>
 </header>
@@ -1161,6 +1203,7 @@ function doLogout() {
 // ── BOOT ─────────────────────────────────────────────────────────────────
 // Show login on first load. doLogin() will call initFirebase() on success.
 showLogin();
+window.addEventListener('resize',()=>{if(_presentMode){if(_presentSingleWeek)fitSpotlightCards();else fitPresentCards();}});
 
 
 
@@ -1561,10 +1604,15 @@ function render(){
 // Completely custom side-by-side layout. Does not use the normal week/grid DOM at all.
 function renderPresent(){
   buildInstanceMap();
+  if(_presentSingleWeek){
+    startSpotlight(S.viewIdx);
+    return;
+  }
+  stopSpotlight();
   const main=document.getElementById('main');
   main.innerHTML='';
   // Full-height flex row container
-  main.style.cssText='display:flex;flex-direction:row;gap:4px;padding:4px;overflow:hidden;background:#0d0f14;height:100%;box-sizing:border-box';
+  main.style.cssText='display:flex;flex-direction:row;gap:3px;padding:3px;overflow:hidden;background:#080a0f;height:100%;box-sizing:border-box';
 
   while(S.weeks.length<=S.viewIdx+1)addNextWeek();
   syncJobSummary(S.viewIdx);
@@ -1579,35 +1627,108 @@ function renderPresent(){
   }
 
   if(_pendingSave){_pendingSave=false;setTimeout(save,200);}
+  fitPresentCards();
+}
+
+function fitPresentCards(){
+  requestAnimationFrame(()=>{
+    document.querySelectorAll('.pres-grid-outer').forEach(outer=>{
+      const grid=outer.querySelector('.pres-grid');
+      if(!grid)return;
+      const totalH=outer.clientHeight;
+      const dayHdrEl=grid.querySelector('.pres-dh');
+      const dayHdrH=dayHdrEl?dayHdrEl.offsetHeight:34;
+      const availH=Math.max(10,totalH-dayHdrH);
+      const crewCells=grid.querySelectorAll('.pres-cl');
+      const nc=crewCells.length;
+      if(!nc)return;
+      const rowH=availH/nc;
+
+      // Uniform card height based on worst-case cell
+      let maxCards=1;
+      grid.querySelectorAll('.pres-cell').forEach(cell=>{
+        const n=cell.querySelectorAll('.pres-jcard').length;
+        if(n>maxCards)maxCards=n;
+      });
+      const cardH=Math.max(18,(rowH-6)/maxCards-2);
+      const padV=12;
+      const footReserve=14;
+
+      grid.querySelectorAll('.pres-cell').forEach(cell=>{
+        cell.querySelectorAll('.pres-jcard').forEach(card=>{
+          card.style.flex='none';
+          card.style.height=cardH+'px';
+          card.style.minHeight='unset';
+          const nameEl=card.querySelector('.pres-jname');
+          const noteEl=card.querySelector('.pres-jnote');
+          const footEl=card.querySelector('.pres-jfoot');
+          if(!nameEl)return;
+          const textAvail=Math.max(4,cardH-padV-(footEl?footReserve:0));
+          const cardW=Math.max(40,card.clientWidth-28);
+          if(noteEl&&textAvail>=16){
+            // Solve name+note jointly: nameSize*(1.1*lines+0.65)+4=textAvail
+            let nameSize=(textAvail-4)/(1.1+0.65);
+            const estW=nameEl.textContent.length*nameSize*0.52;
+            const lines=estW>cardW?2:1;
+            if(lines===2)nameSize=(textAvail-4)/(2.2+0.65);
+            nameSize=Math.min(26,Math.max(8,nameSize));
+            const noteSize=Math.min(13,Math.max(7,nameSize*0.65));
+            nameEl.style.fontSize=nameSize+'px';
+            nameEl.style.lineHeight='1.1';
+            noteEl.style.fontSize=noteSize+'px';
+            noteEl.style.display='';
+          }else{
+            if(noteEl)noteEl.style.display='none';
+            let nameSize=Math.min(26,Math.max(8,textAvail*0.82));
+            const estW=nameEl.textContent.length*nameSize*0.52;
+            if(estW>cardW)nameSize=Math.min(26,Math.max(8,textAvail*0.50));
+            nameEl.style.fontSize=nameSize+'px';
+            nameEl.style.lineHeight='1.1';
+          }
+        });
+      });
+
+      crewCells.forEach(cl=>{
+        const namesEl=cl.querySelector('.pres-cl-names');
+        if(!namesEl)return;
+        const numEl=cl.querySelector('.pres-cl-num');
+        const numH=numEl?numEl.offsetHeight+3:0;
+        const clAvail=Math.max(8,rowH-numH-8);
+        const lineCount=namesEl.innerHTML.split('<br>').length||1;
+        const perLine=clAvail/lineCount;
+        const fs=Math.min(14,Math.max(7,perLine*0.68));
+        namesEl.style.fontSize=fs+'px';
+        namesEl.style.lineHeight=(fs<9?1.1:1.3).toString();
+      });
+    });
+  });
 }
 
 function buildPresentWeek(wi, isNext){
   const wk=S.weeks[wi];
   const nd=wk.hasSunday?7:6;
   ensureA(wi);
-  const isDark=document.body.classList.contains('dark');
   const curIdx=currentWeekIdx(S.weeks);
   const isThisWeek=(wi===curIdx), isNextWeek=(wi===curIdx+1);
   const todayStr=MN[new Date().getMonth()]+' '+new Date().getDate();
 
-  // ── Week panel ──────────────────────────────────────────────────────────
+  // ── Week panel ─────────────────────────────────────────────────────────────
   const panel=document.createElement('div');
-  panel.className='pres-week'+(isDark?' dark-mode':'');
-  panel.style.cssText='flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden;border-radius:2px';
+  panel.className='pres-week';
+  panel.style.cssText='flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden';
 
-  // ── Header bar ──────────────────────────────────────────────────────────
+  // ── Header bar ─────────────────────────────────────────────────────────────
   const wInv=calcWeekInv(wk), wSched=calcWeekSched(wk,nd);
   const tgt=wk.target||0;
-  const schedColor=tgt>0?(wSched>=tgt?'#2db87a':wSched>=tgt*.75?'#d4a017':'#e05252'):'#8a90a0';
+  const schedColor=tgt>0?(wSched>=tgt?'#3ecf8e':wSched>=tgt*.75?'#f5c842':'#e05252'):'#f5c842';
   const labelHtml=isNextWeek
     ?`<span class="pres-week-label">NEXT WEEK</span>`
     :isThisWeek?`<span class="pres-week-label curr">THIS WEEK</span>`:'';
   const bar=document.createElement('div');
   bar.className='pres-bar'+(isThisWeek?' curr-bar':'');
-  // Viewer mode: hide all dollar amounts
   const showMoney=!(_presentMode==='viewer');
   const moneyHtml=showMoney
-    ?`<div class="pres-bar-rev"><span style="color:${schedColor}">$${fmt(wSched)}</span><span class="inv">Invoice: $${fmt(wInv)}</span></div>`
+    ?`<div class="pres-bar-rev"><span class="sched" style="color:${schedColor}">Sched: $${fmt(wSched)}</span><span class="inv">Invoice: $${fmt(wInv)}</span></div>`
     :'';
   bar.innerHTML=`<div class="pres-bar-left">${labelHtml}<span class="pres-week-dates">${wk.dates[0]} – ${wk.dates[nd-1]}</span></div>${moneyHtml}`;
   panel.appendChild(bar);
@@ -1646,7 +1767,7 @@ function buildPresentWeek(wi, isNext){
   grid.className='pres-grid';
   // Columns: crew label | day1..dayN
   // Rows: day header | crew1..crewN  — all 1fr so they fill evenly
-  const crewColW='52px';
+  const crewColW='80px';
   const presNc=getWeekNumCrews(wi);
   grid.style.gridTemplateColumns=`${crewColW} repeat(${nd},1fr)`;
   grid.style.gridTemplateRows=`auto repeat(${presNc},1fr)`;
@@ -1697,29 +1818,30 @@ function buildPresentWeek(wi, isNext){
         const card=document.createElement('div');
         // Scale down card density based on how many jobs share the cell
         card.className='pres-jcard'+(j.night?' night':'')+(j.oot?' oot':'');
-        // Thick left border + subtle background tint from job color
+        // Job color: thick left border + rich background tint
         if(jc){
           card.style.borderLeftColor=jc;
           const hex=jc.replace('#','');
           const r=parseInt(hex.slice(0,2),16),g=parseInt(hex.slice(2,4),16),b=parseInt(hex.slice(4,6),16);
-          if(!j.night&&!j.oot) card.style.background=`rgba(${r},${g},${b},0.13)`;
+          if(!j.night&&!j.oot) card.style.background='#dde1ec';
         }
-        // Status badge (skip 'working' — that's the default)
-        const statColors={working:'#4a9eff',punch:'#d4a017',free:'#2db87a',standby:'#9b6dff'};
-        const statLabels={punch:'Punch',free:'Change Order',standby:'Sub'};
+        // Status badge — solid background for TV legibility
+        const statColors={working:null,punch:'#d4a017',free:'#1a7a50',standby:'#5a3aaa'};
+        const statLabels={punch:'Punch',free:'Change Order',standby:'🪖 Sub'};
         const statLabel=statLabels[j.s]||'';
-        const statColor=statColors[j.s]||'#4a9eff';
+        const statBg=statColors[j.s]||null;
         const pInstNum=getInstanceNum(j.job,wi,ci,di,ji);
         const footHtml=(statLabel||j.night||j.oot||pInstNum)
           ?`<div class="pres-jfoot">`
             +(j.night?`<span class="pres-jnight">🌙</span>`:'')
-            +(j.oot?`<span>🛣️</span>`:'')
-            +(statLabel?`<span class="pres-jstat" style="background:${statColor}22;color:${statColor}">${statLabel}</span>`:'')
-            +(pInstNum?`<span style="font-family:var(--font-m);font-size:9px;color:#6a7080;margin-left:auto">#${pInstNum}</span>`:'')
+            +(j.oot?`<span class="pres-jnight">🛣️</span>`:'')
+            +(statLabel&&statBg?`<span class="pres-jstat" style="background:${statBg};color:#fff">${statLabel}</span>`:'')
+            +(pInstNum?`<span style="font-family:var(--font-m);font-size:9px;color:#3a4055;margin-left:auto">#${pInstNum}</span>`:'')
             +`</div>`
           :'';
+        const displayNote=j.note||(wk.jobSummary[j.job]&&wk.jobSummary[j.job].note)||'';
         card.innerHTML=`<div class="pres-jname">${esc(j.job)}</div>`
-          +(j.note?`<div class="pres-jnote">${esc(j.note)}</div>`:'')
+          +(displayNote?`<div class="pres-jnote">${esc(displayNote)}</div>`:'')
           +footHtml;
         if(!VIEWER_MODE){
           const rm=document.createElement('button');
@@ -2301,7 +2423,7 @@ function adjustWeekCrews(wi,delta){
   save();render();
 }
 function toggleSunday(wi){pushUndo();const wk=S.weeks[wi];wk.hasSunday=!wk.hasSunday;if(wk.hasSunday){if(!wk.dates[6])wk.dates[6]=addDays(wk.dates[5],1);wk.a.forEach(cr=>{if(cr.length<7)cr.push([]);});}else{wk.dates=wk.dates.slice(0,6);wk.a.forEach(cr=>cr.splice(6,1));}save();render();}
-function navigate(dir){const ni=S.viewIdx+dir;if(ni<0)return;S.viewIdx=ni;while(S.weeks.length<=S.viewIdx+1)addNextWeek();localStorage.setItem('sfs_viewIdx',S.viewIdx);render();}
+function navigate(dir){const ni=S.viewIdx+dir;if(ni<0)return;if(_presentSingleWeek)stopSpotlight();S.viewIdx=ni;while(S.weeks.length<=S.viewIdx+1)addNextWeek();localStorage.setItem('sfs_viewIdx',S.viewIdx);render();}
 function updateNav(){
   document.getElementById('nav-prev').disabled=S.viewIdx===0;
   const w0=S.weeks[S.viewIdx],w1=S.weeks[S.viewIdx+1]||w0;
@@ -2479,30 +2601,262 @@ function doPrint(which){
   },400);
 }
 // ── PRESENTATION MODE ────────────────────────────────────────────────────
-let _presentMode = null; // null | 'editor' | 'viewer'
+let _presentMode = null;
 let _presentSingleWeek = false;
-let _presentSingleWhich = 'next'; // 'next' | 'this'
+let _presSpotCrew = 0;
+let _presSpotTimer = null;
+const PRES_SPOT_MS = 8000;
+
+function stopSpotlight(){
+  if(_presSpotTimer){clearInterval(_presSpotTimer);_presSpotTimer=null;}
+}
+function startSpotlight(wi){
+  stopSpotlight();
+  buildSpotlightView(wi);
+  _presSpotCrew=0;
+  _presSpotTimer=setInterval(()=>{
+    const nc=getWeekNumCrews(S.viewIdx);
+    _presSpotCrew=(_presSpotCrew+1)%nc;
+    applySpotlight();
+  },PRES_SPOT_MS);
+  // rAF 1: rows have flex:1 height — snapshot that into explicit style.height
+  // with transitions OFF so there's no animation from "unset" state
+  requestAnimationFrame(()=>{
+    const rows=Array.from(document.querySelectorAll('.pres-sp-row'));
+    rows.forEach(r=>{
+      r.style.transition='none';
+      r.style.flex=`0 0 ${r.clientHeight}px`;
+    });
+    rows.forEach(r=>r.offsetHeight); // force reflow to commit values
+    rows.forEach(r=>r.style.transition='');
+    requestAnimationFrame(()=>applySpotlight());
+  });
+}
+function applySpotlight(){
+  document.querySelectorAll('.pres-sp-row').forEach((row,i)=>{
+    row.classList.toggle('spotlight',i===_presSpotCrew);
+  });
+  requestAnimationFrame(()=>{
+    fitSpotlightCards();
+    requestAnimationFrame(startProgressBar);
+  });
+}
+function fitSpotlightCards(){
+  const rowsCont=document.querySelector('.pres-sp-rows');
+  if(!rowsCont)return;
+  const totalH=rowsCont.clientHeight;
+  if(!totalH)return;
+  const rows=Array.from(document.querySelectorAll('.pres-sp-row'));
+  const nc=rows.length;
+  if(!nc)return;
+
+  // ── Pass 1: Set spotlight fonts, calculate natural height ────────────
+  const SPOT_NAME_SZ=28, SPOT_NOTE_SZ=17, SPOT_FOOT_H=20, SPOT_PAD=14;
+  let spotH=60;
+  rows.forEach(row=>{
+    if(!row.classList.contains('spotlight'))return;
+    let maxCellH=0;
+    row.querySelectorAll('.pres-sp-cell').forEach(cell=>{
+      const cards=cell.querySelectorAll('.pres-jcard');
+      if(!cards.length)return;
+      const cellW=Math.max(80,cell.clientWidth-6);
+      let cellH=6;
+      cards.forEach(card=>{
+        card.style.flex='none';card.style.height='auto';card.style.minHeight='unset';
+        const nameEl=card.querySelector('.pres-jname');
+        const noteEl=card.querySelector('.pres-jnote');
+        const footEl=card.querySelector('.pres-jfoot');
+        if(nameEl){nameEl.style.fontSize=SPOT_NAME_SZ+'px';nameEl.style.lineHeight='1.15';}
+        if(noteEl){noteEl.style.fontSize=SPOT_NOTE_SZ+'px';noteEl.style.opacity='1';noteEl.style.display='';}
+        if(footEl)footEl.style.display='';
+        // Calculate natural card height from font math
+        const nameLen=nameEl?nameEl.textContent.length:0;
+        const charsPerLine=Math.max(1,Math.floor((cellW-24)/(SPOT_NAME_SZ*0.52)));
+        const lines=Math.max(1,Math.min(3,Math.ceil(nameLen/charsPerLine)));
+        const nameH=SPOT_NAME_SZ*1.15*lines;
+        const noteH=(noteEl&&noteEl.textContent)?SPOT_NOTE_SZ+4:0;
+        const footH=footEl?SPOT_FOOT_H:0;
+        cellH+=Math.max(36,SPOT_PAD+nameH+noteH+footH)+2;
+      });
+      if(cellH>maxCellH)maxCellH=cellH;
+    });
+    spotH=Math.max(60,maxCellH);
+  });
+
+  // ── Calculate non-spotlight row height ───────────────────────────────
+  const otherRowH=nc>1?Math.max(36,(totalH-spotH)/(nc-1)):0;
+
+  // ── Set all row sizes via flex-basis (height:Xpx ignored by flex algorithm) ──
+  rows.forEach(row=>{
+    const h=row.classList.contains('spotlight')?spotH:otherRowH;
+    row.style.flex=`0 0 ${h}px`;
+  });
+
+  // ── Pass 2: Non-spotlight — largest font fitting full name ───────────
+  rows.forEach(row=>{
+    if(row.classList.contains('spotlight'))return;
+    const rH=otherRowH;
+    row.querySelectorAll('.pres-sp-cell').forEach(cell=>{
+      const cards=cell.querySelectorAll('.pres-jcard');
+      if(!cards.length)return;
+      const n=cards.length;
+      const cardH=Math.max(20,(rH-6)/n-2);
+      const textAvail=Math.max(6,cardH-8);
+      const cellW=Math.max(60,cell.clientWidth-6);
+      const cardW=Math.max(40,cellW-22);
+      cards.forEach(card=>{
+        card.style.flex=`0 0 ${cardH}px`;card.style.minHeight='unset';
+        const nameEl=card.querySelector('.pres-jname');
+        const noteEl=card.querySelector('.pres-jnote');
+        const footEl=card.querySelector('.pres-jfoot');
+        if(noteEl){noteEl.style.display='none';noteEl.style.opacity='0';}
+        if(footEl)footEl.style.display='none';
+        if(!nameEl)return;
+        // Find largest font where full name fits (wrapping OK, max 3 lines)
+        const nameLen=Math.max(1,nameEl.textContent.length);
+        // Binary: try 1-line, 2-line, 3-line sizing, pick largest that fits
+        const fs1=Math.min(textAvail/1.15,(cardW)/(nameLen*0.52)*1.05);
+        const fs2=Math.min(textAvail/2.3,(cardW*2)/(nameLen*0.52)*1.05);
+        const fs3=Math.min(textAvail/3.45,(cardW*3)/(nameLen*0.52)*1.05);
+        let fs=Math.max(fs1,fs2,fs3); // largest that fits in available height
+        // Verify chosen size actually fits height (safety clamp)
+        const lines=Math.ceil(nameLen/Math.max(1,Math.floor(cardW/(fs*0.52))));
+        if(fs*1.15*lines>textAvail)fs=textAvail/(lines*1.15);
+        fs=Math.min(16,Math.max(7,fs));
+        nameEl.style.fontSize=fs+'px';
+        nameEl.style.lineHeight='1.2';
+      });
+    });
+  });
+}
+function startProgressBar(){
+  document.querySelectorAll('.pres-sp-timer').forEach(t=>t.remove());
+  const spotRow=document.querySelector('.pres-sp-row.spotlight');
+  if(!spotRow)return;
+  const cl=spotRow.querySelector('.pres-sp-cl');
+  if(!cl)return;
+  const bar=document.createElement('div');
+  bar.className='pres-sp-timer';
+  cl.appendChild(bar);
+  bar.offsetWidth; // force reflow before transition
+  bar.style.transition=`width ${PRES_SPOT_MS}ms linear`;
+  bar.style.width='100%';
+}
+function buildSpotlightView(wi){
+  buildInstanceMap();
+  const wk=S.weeks[wi];const nd=wk.hasSunday?7:6;
+  const nc=getWeekNumCrews(wi);const crews=getWeekCrews(wi);
+  const main=document.getElementById('main');
+  const showMoney=!(_presentMode==='viewer');
+  const todayStr=MN[new Date().getMonth()]+' '+new Date().getDate();
+  const curIdx=currentWeekIdx(S.weeks);
+  const isThisWeek=wi===curIdx,isNextWeek=wi===curIdx+1;
+
+  main.innerHTML='';
+  main.style.cssText='display:flex;flex-direction:column;padding:0;overflow:hidden;background:#07090e;height:100%;box-sizing:border-box';
+
+  const wrap=document.createElement('div');wrap.className='pres-sp-wrap';
+
+  // Header bar
+  const wSched=calcWeekSched(wk,nd),wInv=calcWeekInv(wk);
+  const tgt=wk.target||0;
+  const sc=tgt>0?(wSched>=tgt?'#3ecf8e':wSched>=tgt*.75?'#f5c842':'#e05252'):'#f5c842';
+  const bar=document.createElement('div');bar.className='pres-sp-bar';
+  const lbl=isNextWeek?'<span class="pres-sp-wklabel">NEXT WEEK</span>':isThisWeek?'<span class="pres-sp-wklabel curr" style="background:#1a1d26;color:#3a4055">THIS WEEK</span>':'';
+  const monHtml=showMoney?`<div class="pres-sp-rev"><span class="sch" style="color:${sc}">Sched: $${fmt(wSched)}</span><span class="inv">Invoice: $${fmt(wInv)}</span></div>`:'';
+  bar.innerHTML=`<div class="pres-sp-bar-left">${lbl}<span class="pres-sp-dates">${wk.dates[0]} – ${wk.dates[nd-1]}</span></div>${monHtml}`;
+  wrap.appendChild(bar);
+
+  // Day header row
+  const dhRow=document.createElement('div');dhRow.className='pres-sp-dhrow';
+  const corner=document.createElement('div');corner.className='pres-sp-corner';dhRow.appendChild(corner);
+  for(let di=0;di<nd;di++){
+    const isToday=isThisWeek&&wk.dates[di]===todayStr;
+    const isSat=di===5;
+    const dh=document.createElement('div');
+    dh.className='pres-dh'+(isToday?' today':'')+(isSat?' sat':'');
+    dh.style.flex='1';dh.style.borderLeft='none';
+    dh.innerHTML=`<div class="dn">${DAY_NAMES[di]}</div><div class="dd">${wk.dates[di]||''}</div>`;
+    dhRow.appendChild(dh);
+  }
+  wrap.appendChild(dhRow);
+
+  // Crew rows
+  const rowsCont=document.createElement('div');rowsCont.className='pres-sp-rows';
+  for(let ci=0;ci<nc;ci++){
+    const crew=crews[ci]||{num:ci+1,members:[]};
+    const row=document.createElement('div');row.className='pres-sp-row';
+
+    const cl=document.createElement('div');cl.className='pres-sp-cl';cl.style.position='relative';
+    cl.innerHTML=`<div class="pres-sp-cl-num">${crew.num}</div><div class="pres-sp-cl-names">${crew.members.map(n=>n.split(' ')[0]).join('<br>')}</div>`;
+    row.appendChild(cl);
+
+    for(let di=0;di<nd;di++){
+      const isToday=isThisWeek&&wk.dates[di]===todayStr;
+      const isSat=di===5;
+      const cell=document.createElement('div');
+      cell.className='pres-sp-cell'+(isToday?' today':'')+(isSat?' sat':'');
+      const jobs=(wk.a[ci]&&wk.a[ci][di])||[];
+      jobs.forEach((j,ji)=>{
+        if(!j||!j.job)return;
+        const jc=(S.jobColors||{})[j.job];
+        const card=document.createElement('div');
+        card.className='pres-jcard'+(j.night?' night':'')+(j.oot?' oot':'');
+        card.style.flex='1';card.style.minHeight='0';
+        if(jc){card.style.borderLeftColor=jc;if(!j.night&&!j.oot)card.style.background='#dde1ec';}
+        const statLabels={punch:'Punch',free:'Change Order',standby:'🪖 Sub'};
+        const statBgs={punch:'#d4a017',free:'#1a7a50',standby:'#5a3aaa'};
+        const sl=statLabels[j.s]||'';const sb=statBgs[j.s]||null;
+        const pInst=getInstanceNum(j.job,wi,ci,di,ji);
+        const footHtml=(sl||j.night||j.oot||pInst)
+          ?`<div class="pres-jfoot">`
+            +(j.night?`<span class="pres-jnight">🌙</span>`:'')
+            +(j.oot?`<span class="pres-jnight">🛣️</span>`:'')
+            +(sl&&sb?`<span class="pres-jstat" style="background:${sb};color:#fff">${sl}</span>`:'')
+            +(pInst?`<span style="font-family:var(--font-m);font-size:8px;color:#3a4055;margin-left:auto">#${pInst}</span>`:'')
+            +`</div>`
+          :'';
+        const dn=j.note||(wk.jobSummary[j.job]&&wk.jobSummary[j.job].note)||'';
+        card.innerHTML=`<div class="pres-jname">${esc(j.job)}</div>`+(dn?`<div class="pres-jnote">${esc(dn)}</div>`:'')+footHtml;
+        if(!VIEWER_MODE){
+          const rm=document.createElement('button');rm.className='pres-jremove';rm.innerHTML='×';
+          rm.addEventListener('pointerdown',e=>e.stopPropagation());
+          rm.addEventListener('click',e=>{e.stopPropagation();S.weeks[wi].a[ci][di].splice(ji,1);save();buildSpotlightView(wi);applySpotlight();});
+          card.appendChild(rm);
+        }
+        cell.appendChild(card);
+      });
+      row.appendChild(cell);
+    }
+    rowsCont.appendChild(row);
+  }
+  wrap.appendChild(rowsCont);
+  main.appendChild(wrap);
+}
+
 function togglePresent(){
   if(_presentMode){
+    stopSpotlight();
     document.body.classList.remove('present-editor','present-viewer');
     _presentMode=null;
     document.getElementById('present-btn').textContent='⛶';
-    document.getElementById('present-btn').title='Presentation mode — fit both weeks to screen';
+    document.getElementById('present-btn').title='Presentation mode';
     document.getElementById('pres-week-controls').style.display='none';
     render();
     return;
   }
-  _presentSingleWeek=false;_presentSingleWhich='next';
+  _presentSingleWeek=false;
   _presentMode=VIEWER_MODE?'viewer':'editor';
   document.body.classList.add('present-'+_presentMode);
   document.getElementById('present-btn').textContent='⊠';
   document.getElementById('present-btn').title='Exit presentation mode';
-  document.getElementById('pres-count-btn').textContent='2W';
+  document.getElementById('pres-count-btn').textContent='MTG';
   render();
 }
 function togglePresentCount(){
   _presentSingleWeek=!_presentSingleWeek;
-  document.getElementById('pres-count-btn').textContent=_presentSingleWeek?'1W':'2W';
+  document.getElementById('pres-count-btn').textContent=_presentSingleWeek?'TV':'MTG';
+  if(!_presentSingleWeek)stopSpotlight();
   render();
 }
 // F11: toggle fullscreen only (browser native) — presentation layout is separate
