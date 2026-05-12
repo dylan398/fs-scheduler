@@ -866,6 +866,7 @@ const DB = firebase.database();
 
 let S = null;
 let _lastSaveTime = 0;
+let _initialLoadDone = false;
 const BACKUP_PATH = DB_PATH + '-backup';
 
 // ── STATE VALIDATION ─────────────────────────────────────────────────────
@@ -894,6 +895,23 @@ function validateState(s){
   if(!s.jobColors||typeof s.jobColors!=='object') s.jobColors={};
   if(!s.projectManagers||!Array.isArray(s.projectManagers)) s.projectManagers=['James Thetford','Tyler Petty'];
   if(!s.notes) s.notes='';
+  // Per-week structural repair — ensure a[crew][day] dimensions are correct
+  s.weeks.forEach(wk=>{
+    if(!wk)return;
+    const nc=typeof wk.numCrews==='number'&&wk.numCrews>0?wk.numCrews:s.numCrews;
+    const nd=wk.hasSunday?7:6;
+    if(!Array.isArray(wk.a))wk.a=[];
+    while(wk.a.length<nc)wk.a.push(Array.from({length:nd},()=>[]));
+    for(let ci=0;ci<wk.a.length;ci++){
+      if(!Array.isArray(wk.a[ci]))wk.a[ci]=Array.from({length:nd},()=>[]);
+      while(wk.a[ci].length<nd)wk.a[ci].push([]);
+      for(let di=0;di<nd;di++){if(!Array.isArray(wk.a[ci][di]))wk.a[ci][di]=[];}
+    }
+    if(!wk.jobSummary||typeof wk.jobSummary!=='object')wk.jobSummary={};
+    if(!Array.isArray(wk.satRoster))wk.satRoster=[];
+    if(!Array.isArray(wk.tbs))wk.tbs=[];
+    if(!Array.isArray(wk.crews)||!wk.crews.length)wk.crews=JSON.parse(JSON.stringify(s.crews));
+  });
   return true;
 }
 
@@ -1074,7 +1092,10 @@ function migrate(d) {
     else{wk.tbs=[];}
   });
   delete d._sid;
-  validateState(d);
+  if(!validateState(d)){
+    console.error('SFS: migrate() produced invalid state — falling back to initData');
+    return initData();
+  }
   return d;
 }
 
@@ -1180,6 +1201,10 @@ function decodeJobRegistry(raw) {
 
 function save() {
   if(!S) return;
+  if(!_initialLoadDone){
+    console.warn('SFS: save() called before initial load — skipped');
+    return;
+  }
   if(!validateState(S)){
     console.error('SFS: save() aborted — state failed validation. S.weeks:', S.weeks?.length);
     setSync('⚠ Save blocked');
@@ -1203,8 +1228,34 @@ function save() {
   localStorage.setItem('sfs_viewIdx', S.viewIdx);
 }
 
+// Writes ALL fields of a single week via targeted multi-path update.
+// Guarantees Firebase never has a partial week node missing dates/numCrews/etc.
+// Use this instead of save() whenever mutating a single week.
+function saveWeek(wi) {
+  if(!S||!_initialLoadDone) return;
+  const wk=S.weeks[wi];
+  if(!wk) return;
+  const base='weeks/'+wi+'/';
+  const patch={};
+  patch[base+'numCrews']=wk.numCrews;
+  patch[base+'hasSunday']=!!wk.hasSunday;
+  patch[base+'dates']=wk.dates;
+  patch[base+'a']=wk.a;
+  patch[base+'crews']=wk.crews||JSON.parse(JSON.stringify(S.crews));
+  patch[base+'jobSummary']=encodeJobSummary(wk.jobSummary||{});
+  patch[base+'satRoster']=wk.satRoster||[];
+  patch[base+'target']=typeof wk.target==='number'?wk.target:0;
+  patch[base+'scheduledInvoice']=typeof wk.scheduledInvoice==='number'?wk.scheduledInvoice:0;
+  patch[base+'tbs']=wk.tbs||[];
+  patch['_sid']=MY_SESSION;
+  setSync('Saving…');
+  DB.ref(DB_PATH).update(patch)
+    .then(()=>setSync('Saved'))
+    .catch(e=>{console.error('Firebase save error:',e);setSync('⚠ Save failed');});
+  localStorage.setItem('sfs_viewIdx',S.viewIdx);
+}
+
 function initFirebase() {
-  let _initialLoadDone = false;
   DB.ref(DB_PATH).on('value', snap => {
     const d = snap.val();
     if(!d) {
@@ -1381,7 +1432,10 @@ function getWeekCrews(wi){
   const nc=getWeekNumCrews(wi);
   const base=(wk&&wk.crews&&wk.crews.length)?wk.crews:S.crews;
   const result=[];
-  for(let i=0;i<nc;i++) result.push(base[i]||S.crews[i]||{num:i+1,members:[]});
+  for(let i=0;i<nc;i++){
+    const c=base[i]||S.crews[i]||{num:i+1,members:[]};
+    result.push({num:typeof c.num==='number'?c.num:i+1, members:Array.isArray(c.members)?c.members:[]});
+  }
   return result;
 }
 
@@ -2505,17 +2559,26 @@ function closeRoster(){document.getElementById('roster-ov').classList.add('hidde
 function saveRoster(){
   const lines=document.getElementById('r-members').value.split('\n').map(l=>l.trim()).filter(Boolean);
   pushUndo();
-  if(typeof AR==='string'&&AR.startsWith('sat_'))S.weeks[parseInt(AR.split('_')[1])].satRoster=lines;
-  else if(_rosterWi!=null){
-    // Save to week-specific crews
+  if(typeof AR==='string'&&AR.startsWith('sat_')){
+    const wi=parseInt(AR.split('_')[1]);
+    S.weeks[wi].satRoster=lines;
+    saveWeek(wi);
+  }else if(_rosterWi!=null){
     const wk=S.weeks[_rosterWi];
     if(!wk.crews)wk.crews=JSON.parse(JSON.stringify(S.crews));
     while(wk.crews.length<=AR)wk.crews.push({num:wk.crews.length+1,members:[]});
     wk.crews[AR].members=lines;
+    saveWeek(_rosterWi);
   }else{
-    while(S.crews.length<=AR)S.crews.push({num:S.crews.length+1,members:[]});S.crews[AR].members=lines;
+    while(S.crews.length<=AR)S.crews.push({num:S.crews.length+1,members:[]});
+    S.crews[AR].members=lines;
+    const patch={'crews':S.crews,'_sid':MY_SESSION};
+    setSync('Saving…');
+    DB.ref(DB_PATH).update(patch)
+      .then(()=>setSync('Saved'))
+      .catch(e=>{console.error('Firebase save error:',e);setSync('⚠ Save failed');});
   }
-  save();render();closeRoster();
+  render();closeRoster();
 }
 
 // ── ADJUST CREWS PER WEEK ─────────────────────────────────────────────────
@@ -2537,9 +2600,9 @@ function adjustWeekCrews(wi,delta){
     wk.a=wk.a.slice(0,n);
   }
   wk.numCrews=n;
-  save();render();
+  saveWeek(wi);render();
 }
-function toggleSunday(wi){pushUndo();const wk=S.weeks[wi];wk.hasSunday=!wk.hasSunday;if(wk.hasSunday){if(!wk.dates[6])wk.dates[6]=addDays(wk.dates[5],1);wk.a.forEach(cr=>{if(cr.length<7)cr.push([]);});}else{wk.dates=wk.dates.slice(0,6);wk.a.forEach(cr=>cr.splice(6,1));}save();render();}
+function toggleSunday(wi){pushUndo();const wk=S.weeks[wi];wk.hasSunday=!wk.hasSunday;if(wk.hasSunday){if(!wk.dates[6])wk.dates[6]=addDays(wk.dates[5],1);wk.a.forEach(cr=>{if(cr.length<7)cr.push([]);});}else{wk.dates=wk.dates.slice(0,6);wk.a.forEach(cr=>cr.splice(6,1));}saveWeek(wi);render();}
 function navigate(dir){const ni=S.viewIdx+dir;if(ni<0)return;if(_presentSingleWeek)stopSpotlight();S.viewIdx=ni;while(S.weeks.length<=S.viewIdx+1)addNextWeek();localStorage.setItem('sfs_viewIdx',S.viewIdx);render();}
 function updateNav(){
   document.getElementById('nav-prev').disabled=S.viewIdx===0;
